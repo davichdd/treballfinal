@@ -38,5 +38,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-$ git config --global user.name "rpueyomur"
-$ git config --global user.email rpueyo.mur@gmail.com
+[user]
+name= "rpueyomur"
+mail= "rpueyo.mur@gmail.com"
