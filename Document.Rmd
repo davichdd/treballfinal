@@ -26,3 +26,14 @@ Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vot
 distribucióVOX <- hist(datos$tasavotoVOX)
 ```
 Es pot apreciar una distribució no normal, amb una cua a la dreta important. Això ens dona a pensar que hi han alguns municipis que poden ser uns outliers. S'haurà d'analitzar. 
+Un box plot nos dará también información acerca de los posibles valores extremos.
+```{r}
+boxplot(datos$tasavotoVOX, col="blue")
+```
+Es pot observar que pràcticament a partir del 40% es comencen a observar valors extrems. Per la part inferior no s'observa cap. 
+
+```{r}
+qqnorm(datos$tasavotoVOX)
+```
+
+
