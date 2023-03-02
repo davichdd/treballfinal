@@ -4,3 +4,25 @@ Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades m
 datos <-  read.csv("C:/Users/rpuey/Documents/datosfinal.txt")
 ```
 
+Un cop carregada la nostra taula de dades, és important transformar determinades variables com és la nostra variable depenent, que és el vot a VOX. En aquest cas, el que farem és utilitzar la dada relativa respecte del total de vots a cada municipi, per tal de tenir una aproximació de en quins valors es mou el número de vots de vots de VOX respecte del total. 
+
+Primer de tot creem una variable que serà la suma de tots els vots a cada municipi.
+
+```{r}
+names(datos)
+datos$totalvotos <- rowSums(datos[ , c(2:14)], na.rm=TRUE)
+```
+Ara calcularem la taxa de vots de VOX
+```{r}
+datos$tasavotoVOX <-datos$VOX/datos$totalvotos
+```
+Ja podem analitzar les dades de vots a VOX en taxa.
+```{r}
+summary(datos$tasavotoVOX)
+```
+Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vots que va treure va ser un 62'5%. La mitjana de vots va ser de 14'4%. És important analitzar la distribució de la variable.
+
+```{r}
+distribucióVOX <- hist(datos$tasavotoVOX)
+```
+Es pot apreciar una distribució no normal, amb una cua a la dreta important. Això ens dona a pensar que hi han alguns municipis que poden ser uns outliers. S'haurà d'analitzar. 
