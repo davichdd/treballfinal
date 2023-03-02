@@ -26,7 +26,7 @@ Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vot
 distribucióVOX <- hist(datos$tasavotoVOX)
 ```
 Es pot apreciar una distribució no normal, amb una cua a la dreta important. Això ens dona a pensar que hi han alguns municipis que poden ser uns outliers. S'haurà d'analitzar. 
-Un box plot nos dará también información acerca de los posibles valores extremos.
+Un box plot també ens donarà informació sobre els possibles valors extrems.
 ```{r}
 boxplot(datos$tasavotoVOX, col="blue")
 ```
@@ -36,4 +36,48 @@ Es pot observar que pràcticament a partir del 40% es comencen a observar valors
 qqnorm(datos$tasavotoVOX)
 ```
 
+```{r}
+names(datos)
+```
+Un altra variable a explorar és l'atur. En aquest cas, també hem de realitzar les diferents taxes. Comencem per l'atur total respecte a la població.
+```{r}
+names(datos)
+datos$taxaatur <- datos$atur/datos$totalpoblacion
+distribucioatur <- hist(datos$taxaatur)
+```
+Es pot apreciar que la distribució també té cua cap a la dreta. 
 
+```{r}
+boxplot(datos$taxaatur, col="blue")
+```
+```
+També es pot apreciar que hi ha un gran nombre d'outliers.
+
+
+```{r}
+qqnorm(datos$taxaatur)
+
+```
+```
+Es confirma que no és una distribució normal.
+
+Farem el mateix per la variable total estrangers, per veure la seva distribució. Emprarem també la taxa respecte la població total. 
+
+```{r}
+names(datos)
+datos$taxaestrangers <- datos$totalextranjeros/datos$totalpoblacion
+distribucioestrangers <- hist(datos$taxaestrangers)
+```
+```{r}
+boxplot(datos$taxaestrangers, col="blue")
+```
+La distribució d'aquesta variable encara presenta més outliers.Aquests municipis podrien ser aquells que requereixen mà d'obra al camp. De fet s'aprecia un municipi amb més d'un 90% de població estrangera.
+
+
+```{r}
+summary(datos$taxaestrangers)
+
+```
+Aquestes dades queden clares amb el summary. 
+
+            
