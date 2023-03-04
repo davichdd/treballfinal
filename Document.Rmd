@@ -1,3 +1,12 @@
+```{r}
+library(foreign)
+library(knitr)
+library(dplyr)
+library(tidyverse)
+```
+
+
+
 Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE i els resultats electorals al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
 
 ```{r}
@@ -35,7 +44,10 @@ Es pot observar que pràcticament a partir del 40% es comencen a observar valors
 ```{r}
 qqnorm(datos$tasavotoVOX)
 ```
-
+```{r}
+plot(density(datos$tasavotoVOX))
+```
+Amb la funció density i realitzant un gràfic, es pot veure millor la distribució de la taxa de vot de VOX i com a partir del 40% de vot presenta una distribució no normal. 
 ```{r}
 names(datos)
 ```
@@ -45,6 +57,7 @@ names(datos)
 datos$taxaatur <- datos$atur/datos$totalpoblacion
 distribucioatur <- hist(datos$taxaatur)
 ```
+
 Es pot apreciar que la distribució també té cua cap a la dreta. 
 
 ```{r}
@@ -79,9 +92,11 @@ summary(datos$taxaestrangers)
 
 ```
 Aquestes dades queden clares amb el summary. 
+```{r}
+plot(density(datos$taxaestrangers))
+```
 
-
-
+Amb la densitat de la distribució de la variable, encara s'aprecia més aquesta diferencia i com la cua cap a la dreta és força llarga, confirmant aquesta distribució no normal. 
 
 
             
