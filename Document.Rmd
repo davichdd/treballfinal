@@ -1,3 +1,8 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
 ```{r}
 library(foreign)
 library(knitr)
@@ -23,34 +28,86 @@ datos$totalvotos <- rowSums(datos[ , c(2:14)], na.rm=TRUE)
 ```
 Ara calcularem la taxa de vots de VOX
 ```{r}
-datos$tasavotoVOX <-datos$VOX/datos$totalvotos
+datos$taxaVOX <-datos$VOX/datos$totalvotos
 ```
 Ja podem analitzar les dades de vots a VOX en taxa.
 ```{r}
-summary(datos$tasavotoVOX)
+summary(datos$taxaVOX)
 ```
 Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vots que va treure va ser un 62'5%. La mitjana de vots va ser de 14'4%. És important analitzar la distribució de la variable.
 
 ```{r}
-distribucióVOX <- hist(datos$tasavotoVOX)
+distribucióVOX <- hist(datos$taxaVOX)
 ```
 Es pot apreciar una distribució no normal, amb una cua a la dreta important. Això ens dona a pensar que hi han alguns municipis que poden ser uns outliers. S'haurà d'analitzar. 
 Un box plot també ens donarà informació sobre els possibles valors extrems.
 ```{r}
-boxplot(datos$tasavotoVOX, col="blue")
+boxplot(datos$taxaVOX, col="blue")
 ```
 Es pot observar que pràcticament a partir del 40% es comencen a observar valors extrems. Per la part inferior no s'observa cap. 
 
 ```{r}
-qqnorm(datos$tasavotoVOX)
+qqnorm(datos$taxaVOX)
 ```
 ```{r}
-plot(density(datos$tasavotoVOX))
+plot(density(datos$taxaVOX))
 ```
 Amb la funció density i realitzant un gràfic, es pot veure millor la distribució de la taxa de vot de VOX i com a partir del 40% de vot presenta una distribució no normal. 
 ```{r}
 names(datos)
 ```
+Transformem les diferents variables d'interés en taxes.
+
+
+```{r}
+datos$taxaamericana <- datos$americana/datos$totalpoblacion
+datos$taxaasiatica <- datos$asiatica/datos$totalpoblacion
+datos$taxaeuropeossinespanyoles <- datos$europeossinespanyoles/datos$totalpoblacion
+datos$taxaespanyols <- datos$espaÃ.oles/datos$totalpoblacion
+datos$taxatotalunioneuropea <- datos$totalunioneuropea/datos$totalpoblacion
+datos$taxaambosexostotalamericana <- datos$ambosexostotalamericana/datos$totalpoblacion
+datos$taxatotaloceaniayapatridas <- datos$totaloceaniayapatridas/datos$totalpoblacion
+datos$taxatotaloceaniayapatridas <- datos$totaloceaniayapatridas/datos$totalpoblacion
+datos$taxaestrangers <- datos$totalextranjeros/datos$totalpoblacion
+datos$taxatotalafrica <- datos$totalafrica/datos$totalpoblacion
+datos$taxatotalafrica <- datos$totalafrica/datos$totalpoblacion
+datos$taxahomesespanyols <- datos$hombresespanyoles/datos$totalpoblacion
+datos$taxadonesespanyoles <- datos$mujeresespanyolas/datos$totalpoblacion
+```
+
+Ara farem el mateix, però pel sexe.
+```{r}
+datos$taxahomes <- datos$totalhombres/datos$totalpoblacion
+datos$taxadones <- datos$totalmujeres/datos$totalpoblacion
+```
+També calcularem les taxes pels diferents grups d'edat.
+
+```{r}
+datos$taxamenors <- datos$menores/datos$totalpoblacion
+datos$taxaedat20_29 <- datos$edad20_29/datos$totalpoblacion
+datos$taxaedat30_39 <- datos$edad30_39/datos$totalpoblacion
+datos$taxaedat40_49 <- datos$edad40_49/datos$totalpoblacion
+datos$taxaedat50_59 <- datos$edad50_59/datos$totalpoblacion
+datos$taxaedat60_69 <- datos$edad60_69/datos$totalpoblacion
+datos$taxaedat70_79 <- datos$edad70_79/datos$totalpoblacion
+datos$taxamajors80 <- datos$mayores80/datos$totalpoblacion
+```
+Per últim, en aquest tractament de les dades, realitzarem també les taxes dels vots als diferents partits:
+
+```{r}
+datos$taxavotPSOE <- datos$PSOE/datos$totalvotos
+datos$taxavotsenblanc <- datos$Votosenblanco/datos$totalvotos
+datos$taxavotsnuls <- datos$Votosnulos/datos$totalvotos
+datos$taxaPP <- datos$PP/datos$totalvotos
+datos$taxaCs <- datos$Cs/datos$totalvotos
+datos$taxaERC <- datos$ERC/datos$totalvotos
+datos$taxaJUNTS <- datos$JUNTS/datos$totalvotos
+datos$taxaPODEMOS_IU <- datos$PODEMOS_IU/datos$totalvotos
+datos$taxaEH_Bildu <- datos$EH_Bildu/datos$totalvotos
+datos$taxaBNG <- datos$BNG/datos$totalvotos
+datos$taxaCUP<- datos$CUP/datos$totalvotos
+```
+
 Un altra variable a explorar és l'atur. En aquest cas, també hem de realitzar les diferents taxes. Comencem per l'atur total respecte a la població.
 ```{r}
 names(datos)
@@ -78,7 +135,6 @@ Farem el mateix per la variable total estrangers, per veure la seva distribució
 
 ```{r}
 names(datos)
-datos$taxaestrangers <- datos$totalextranjeros/datos$totalpoblacion
 distribucioestrangers <- hist(datos$taxaestrangers)
 ```
 ```{r}
@@ -96,7 +152,9 @@ Aquestes dades queden clares amb el summary.
 plot(density(datos$taxaestrangers))
 ```
 
-Amb la densitat de la distribució de la variable, encara s'aprecia més aquesta diferencia i com la cua cap a la dreta és força llarga, confirmant aquesta distribució no normal. 
+Amb la densitat de la distribució de la variable, encara s'aprecia més aquesta diferència i com la cua cap a la dreta és força llarga, confirmant aquesta distribució no normal. 
+
+
 
 
             
