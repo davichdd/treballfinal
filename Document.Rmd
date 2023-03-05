@@ -193,4 +193,147 @@ plot(density(datos$taxaespanyols))
 
 Efectivament, en quant a la distribució de la taxa d'espanyols, també trobem que no és normal. En aquest cas la cua va cap a l'esquerra, en contraposició a la taxa d'estrangers. Els outliers també es presenten a la part baixa del boxplot. 
 
+EDAT:
 
+```{r}
+summary(datos$taxamenors)
+```
+```{r}
+hist(datos$taxamenors)
+```
+```{r}
+boxplot(datos$taxamenors, col="blue")
+```
+```{r}
+plot(density(datos$taxamenors))
+```
+Respecte a l'edat, la distribució una major normalitat que les anteriors analitzades. Hi ha municipios amb 0% de menors i a l'altra banda 28'2% de menors, pero gairebé sense presència de outliers. 
+
+```{r}
+summary(datos$taxaedat20_29)
+```
+```{r}
+hist(datos$taxaedat20_29)
+```
+```{r}
+boxplot(datos$taxaedat20_29, col="blue")
+```
+```{r}
+plot(density(datos$taxaedat20_29))
+```
+La taxa d'edat de 20 a 29 anys ja presenta una distribució menys normal, que va des de 0% a 31%. Tot i així la mitjana i la mediana es troben força juntes. Amb més de 8000 municipis i de diferents grandàries, tot sembla indicar que anirem trobant aquestes distorsions. 
+
+```{r}
+summary(datos$taxaedat30_39)
+```
+```{r}
+hist(datos$taxaedat30_39)
+```
+```{r}
+boxplot(datos$taxaedat30_39, col="blue")
+```
+```{r}
+plot(density(datos$taxaedat30_39))
+```
+Una cosa similar passa amb la franja d'edat de 30 a 39, però amb una distribució més normalitzada, tot i que presenta una tendència a allargar-se cap a la dreta.
+
+```{r}
+summary(datos$taxaedat40_49)
+```
+```{r}
+hist(datos$taxaedat40_49)
+```
+```{r}
+boxplot(datos$taxaedat40_49, col="blue")
+```
+```{r}
+plot(density(datos$taxaedat40_49))
+```
+La franja de 40 a 49 presenta una distribució més centrada, amb municipis amb un 42% de població en aquesta edat. La mitjana i la mediana es troben força a prop. 
+
+```{r}
+summary(datos$taxaedat50_59)
+```
+```{r}
+hist(datos$taxaedat50_59)
+```
+```{r}
+boxplot(datos$taxaedat50_59, col="blue")
+```
+```{r}
+plot(density(datos$taxaedat50_59))
+```
+El màxim continua augmentant. Això ens confirmaria, junt amb l'increment progresiu que es va donant als valor de la mediaa i la mitjana, la piràmide de població invertida que trobem a Espanya. 
+
+```{r}
+summary(datos$taxaedat60_69)
+```
+```{r}
+hist(datos$taxaedat60_69)
+```
+```{r}
+boxplot(datos$taxaedat60_69, col="blue")
+```
+```{r}
+plot(density(datos$taxaedat60_69))
+```
+El mateix passa amb aquesta franja d'edat, tot i que la mediana i la mitjana cauen una mica. 
+```{r}
+summary(datos$taxaedat70_79)
+```
+```{r}
+hist(datos$taxaedat70_79)
+```
+```{r}
+boxplot(datos$taxaedat70_79, col="blue")
+```
+```{r}
+plot(density(datos$taxaedat70_79))
+```
+
+En aquest cas, tot i que hi ha municipis que presenten un 80% de població entre 70 i 79, la mitjana i la mitja tornen a caure. Això ens podria portar a pensar que una gran part de la generació del baby boom estaria dintre de la franja d'edat de 50 a 59. Dada interesant si pensem en clau de pensions. 
+
+```{r}
+summary(datos$taxamajors80)
+```
+```{r}
+hist(datos$taxamajors80)
+```
+```{r}
+boxplot(datos$taxamajors80, col="blue")
+```
+```{r}
+plot(density(datos$taxamajors80))
+```
+Respecte a la taxa de majors de 80 anys, també presenta una distribució no normal. A banda d'això, és curiós constatar que la mitjana sigui de gairebé el 12%, éssent la mediana d'un 10'4%. És un volum important de població major de 80 anys als municipis. 
+
+SEXE:
+
+```{r}
+summary(datos$taxahomes)
+```
+```{r}
+hist(datos$taxahomes)
+```
+```{r}
+boxplot(datos$taxahomes, col="blue")
+```
+```{r}
+plot(density(datos$taxahomes))
+```
+```{r}
+summary(datos$taxadones)
+```
+```{r}
+hist(datos$taxadones)
+```
+```{r}
+boxplot(datos$taxadones, col="blue")
+```
+```{r}
+plot(density(datos$taxadones))
+```
+```{r}
+boxplot(datos$taxadones, datos$taxahomes, col="blue")
+```
+Es pot apreciar que hi ha una xic menys de dones que d'homes. En aquest cas, hi ha municipis que són tot homes. Els homes presenten una mediana de 51'67 mentre que les dones de 48'33. 
