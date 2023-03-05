@@ -108,53 +108,89 @@ datos$taxaBNG <- datos$BNG/datos$totalvotos
 datos$taxaCUP<- datos$CUP/datos$totalvotos
 ```
 
-Un altra variable a explorar és l'atur. En aquest cas, també hem de realitzar les diferents taxes. Comencem per l'atur total respecte a la població.
-```{r}
-names(datos)
-datos$taxaatur <- datos$atur/datos$totalpoblacion
-distribucioatur <- hist(datos$taxaatur)
-```
 
-Es pot apreciar que la distribució també té cua cap a la dreta. 
+Començarem analitzant la variable total estrangers, per veure la seva distribució. Emprarem també la taxa respecte la població total. 
+```{r}
+summary(datos$taxaestrangers)
+```
+S'aprecia municipis on no hi ha estrangers, però també s'observen municipios on un 90% de la població són estrangers.
 
 ```{r}
-boxplot(datos$taxaatur, col="blue")
-```
-```
-També es pot apreciar que hi ha un gran nombre d'outliers.
-
-
-```{r}
-qqnorm(datos$taxaatur)
-
-```
-```
-Es confirma que no és una distribució normal.
-
-Farem el mateix per la variable total estrangers, per veure la seva distribució. Emprarem també la taxa respecte la població total. 
-
-```{r}
-names(datos)
 distribucioestrangers <- hist(datos$taxaestrangers)
 ```
 ```{r}
 boxplot(datos$taxaestrangers, col="blue")
 ```
-La distribució d'aquesta variable encara presenta més outliers.Aquests municipis podrien ser aquells que requereixen mà d'obra al camp. De fet s'aprecia un municipi amb més d'un 90% de població estrangera.
+La distribució d'aquesta variable encara presenta més outliers.Aquests municipis podrien ser aquells que requereixen mà d'obra al camp. 
 
 
-```{r}
-summary(datos$taxaestrangers)
-
-```
-Aquestes dades queden clares amb el summary. 
 ```{r}
 plot(density(datos$taxaestrangers))
 ```
 
 Amb la densitat de la distribució de la variable, encara s'aprecia més aquesta diferència i com la cua cap a la dreta és força llarga, confirmant aquesta distribució no normal. 
 
+VOX és un partit el qual centra el seu discurs en la immigració de caràcter musulmà i el que ells consideren immigració dolenta. De fet, a una conferència al 2018, Abascal afirmava: “No es lo mismo un inmigrante hispanoamericano que la inmigración de los países islámicos” (https://www.eldiario.es/canariasahora/sociedad/video-abascal-vox-hispanoamericano-inmigracion_1_2166996.html). Per tant, a l'anàlisi de la immigració, ens centrarem d'entrada al total d'estrangers, la taxa africana, americana i asiàtica, ja que també és una font important d'immigració. 
+```{r}
+summary(datos$taxaamericana)
+```
+```{r}
+hist(datos$taxaamericana)
+```
+
+```{r}
+boxplot(datos$taxaamericana, col="blue")
+```
+
+```{r}
+plot(density(datos$taxaamericana))
+```
+En aquest cas tenim una distribució del 0 al 21%, amb una distribució no normal. S'aprecia una mitjana d'un 1% i una mediana de 0'006.
+
+```{r}
+summary(datos$taxaasiatica)
+```
+```{r}
+hist(datos$taxaasiatica)
+```
+```{r}
+boxplot(datos$taxaasiatica, col="blue")
+```
+```{r}
+plot(density(datos$taxaasiatica))
+```
+En el cas dels asiàtics, la distribució encara és menys normal.
+```{r}
+summary(datos$taxatotalafrica)
+```
+
+```{r}
+hist(datos$taxatotalafrica)
+```
+```{r}
+boxplot(datos$taxatotalafrica, col="blue")
+```
+```{r}
+plot(density(datos$taxatotalafrica))
+```
+
+També, la taxa d'africans presenta una distribució no normal que va des de 0 a 37'7%.
+
+Per útim, també serà interesant analitzar com es distribueix la taxa d'espanyols, ja que vist com es distribuia la taxa d'estrangers, pot ser que ens trobem alguna distribució diferent.
+
+```{r}
+summary(datos$taxaespanyols)
+```
+```{r}
+hist(datos$taxaespanyols)
+```
+```{r}
+boxplot(datos$taxaespanyols, col="blue")
+```
+```{r}
+plot(density(datos$taxaespanyols))
+```
+
+Efectivament, en quant a la distribució de la taxa d'espanyols, també trobem que no és normal. En aquest cas la cua va cap a l'esquerra, en contraposició a la taxa d'estrangers. Els outliers també es presenten a la part baixa del boxplot. 
 
 
-
-            
