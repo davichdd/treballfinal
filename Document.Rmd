@@ -1,8 +1,16 @@
 ---
-output:
-  word_document: default
-  html_document: default
+title: "Treball Final"
+subtitle: ""
+Author: "Ruben Pueyo i David Donaire"
+output: html_notebook
+output: word_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Introducció
 
 ```{r}
 library(foreign)
@@ -14,7 +22,63 @@ library(tidyverse)
 Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE i els resultats electorals al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
 
 ```{r}
-datos <-  read.csv("C:/Users/rpuey/Documents/datosfinal.txt")
+#Ruben
+data <-  read.csv("C:/Users/rpuey/Documents/datosfinal.txt")
+```
+
+```{r}
+#David
+data <- read.csv("/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt")
+```
+
+```{r}
+rename(data, mun = municipio, v_blanco = Votosenblanco, v_nulo = Votosnulos, PODEMOS = PODEMOS_IU, Bildu = EH_Bildu)
+```
+
+```{r}
+padro <- readRDS(file = "data/SEPE/df_sepe_hist_m_padro.RDS")
+congres <- readRDS(file="data/electorals/d0911_esp_con_2019_mun.RData")
+congres <- aggregate(congres[,colnames(congres)[-c(1:5)]],list(id_mun = substr(congres$id_sscc, 1, 5)), sum, na.rm = TRUE)
+suma <- merge(congres, padro)   
+data1 <- suma[suma$ANY == 2019,]
+```
+
+```{r}
+rename(data1, mun = id_mun)
+```
+
+```{r}
+data1 %>% 
+  mutate(v_blanc = n_vot_blanco/n_escrutinio_censo, 
+        v_nul = n_vot_nulos/n_escrutinio_censo, 
+        PSOE_p = PSOE/n_escrutinio_censo, 
+        PP_p = PP/n_escrutinio_censo, 
+        Cs_p = Cs/n_escrutinio_censo, 
+        ERC_p = ERC/n_escrutinio_censo, 
+        VOX_p = VOX/n_escrutinio_censo, 
+        JUNTS_p = JUNTS/n_escrutinio_censo, 
+        PNV_p = PNV/n_escrutinio_censo, 
+        PODEMOS_p = PODEMOS_IU/n_escrutinio_censo, 
+        Bildu_p = EH_Bildu/n_escrutinio_censo, 
+        BNG_p = BNG/n_escrutinio_censo, 
+        CUP_p = CUP/n_escrutinio_censo)
+```
+
+```{r}
+d <- merge(data1, data, by.x = "municipios")
+```
+
+```{r}
+data %>% 
+  filter(id_mun == '08001') %>% 
+  select(n_censo_ine, )
+```
+
+
+```{r}
+data %>% 
+  rename(mun = municipio, v_blanc = Votosenblanco, v_nul = Votosnulos, PODEMOS = PODEMOS_IU, Bildu = EH_Bildu) %>% 
+  mutate()
 ```
 
 Un cop carregada la nostra taula de dades, és important transformar determinades variables com és la nostra variable depenent, que és el vot a VOX. En aquest cas, el que farem és utilitzar la dada relativa respecte del total de vots a cada municipi, per tal de tenir una aproximació de en quins valors es mou el número de vots de vots de VOX respecte del total. 

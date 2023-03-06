@@ -1,0 +1,13 @@
+```{r}
+graph <- function(x){
+  if(is.numeric(x) == TRUE) 
+    {hist(table(x))} 
+  if(is.numeric(x) == FALSE) 
+    {barplot(table(x))}
+  return()
+}
+```
+
+```{r}
+
+```
