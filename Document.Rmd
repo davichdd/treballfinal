@@ -171,7 +171,7 @@ d1 <- rename(d1,
               M80= d.M80)
 ```
 
-Tres variables independents clares: 
+5 variables independents claus: 
 1. Atur 
 2. Percentatge d'immigrants 
 3. Edat 
