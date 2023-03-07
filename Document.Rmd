@@ -28,12 +28,14 @@ Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades m
 #Ruben: "C:/Users/rpuey/Documents/datosfinal.txt"
 
 data <- read.csv("/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt")
+data <- datosfinal
 data <- rename(data, pob_t = totalpoblacion, mun = municipio)
+names(data)
 ```
 
 ```{r}
 data <- mutate(data, 
-               esp = españoles/pob_t,
+               esp = espaÃ.oles/pob_t,
                euro = europeossinespanyoles/pob_t, 
                asia = totalasia/pob_t, 
                ame = americana/pob_t, 
