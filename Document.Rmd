@@ -171,6 +171,44 @@ d1 <- rename(d1,
               M80= d.M80)
 ```
 
+## renda
+
+```{r}
+df01_W_2019 <- readRDS(file="data/ine/dadesRENTA_01_2019.rds")
+df09_W_2019 <- readRDS(file="data/ine/dadesRENTA_09_2019.rds")
+df10_W_2019 <- readRDS(file="data/ine/dadesRENTA_10_2019.rds")
+
+dades_sscc<-merge(df01_W_2019,df09_W_2019)
+dades_sscc <- merge(dades_sscc,df10_W_2019)
+
+dades_socio_mun <- dades_sscc %>% 
+  mutate(id_mun = substr(id_sscc,1,5)
+         ,Pob_renta = ifelse(is.na(Renta_neta_media_por_persona_),NA,Población)
+         ,Renta_Pob = ifelse(is.na(Población),NA,Renta_neta_media_por_persona_)
+         ,Pob_gini = ifelse(is.na(Índice_de_Gini),NA,Población)
+         ,Gini_Pob = ifelse(is.na(Población),NA,Índice_de_Gini)
+         ,Pob_edad = ifelse(is.na(Edad_media_de_la_población),NA,Población)
+         ,Edad_Pob = ifelse(is.na(Población),NA,Edad_media_de_la_población)
+         ,tam_hog_Pob = ifelse(is.na(Población),NA,Tamaño_medio_del_hogar)
+         ,Por_hog_uni_Pob = ifelse(is.na(Población),NA,Porcentaje_de_hogares_unipersonales)
+         ) %>% 
+  group_by(id_mun) %>% 
+  summarise(Renta_neta_persona = sum(Renta_Pob*Pob_renta,na.rm=TRUE)/sum(Pob_renta,na.rm=TRUE)
+            ,Gini_medio = median(Índice_de_Gini,na.rm=TRUE)
+            ,Edad_media = sum(Edad_Pob*Pob_edad,na.rm=TRUE)/sum(Pob_edad,na.rm=TRUE)
+            ,Poblacion = sum(Población,na.rm=TRUE)
+            ,tam_hog_medio = sum(tam_hog_Pob*Pob_edad,na.rm=TRUE)/sum(Pob_edad,na.rm=TRUE)
+            ,por_hog_uni = sum(Por_hog_uni_Pob*Pob_edad,na.rm=TRUE)/sum(Pob_edad,na.rm=TRUE)
+            ) %>% 
+  ungroup() %>% 
+  filter(Poblacion>0)
+summary(dades_socio_mun)
+
+d1 <- merge(d1,dades_socio_mun,by.x="mun",by.y="id_mun")
+d1 <- na.omit(d1)
+```
+
+
 5 variables independents claus: 
 1. Atur 
 2. Percentatge d'immigrants 
@@ -184,6 +222,7 @@ d1 <- rename(d1,
 
 Un cop carregada la nostra taula de dades, és important transformar determinades variables com és la nostra variable depenent, que és el vot a VOX. En aquest cas, el que farem és utilitzar la dada relativa respecte del total de vots a cada municipi, per tal de tenir una aproximació de en quins valors es mou el número de vots de vots de VOX respecte del total. 
 
+``` 
 Primer de tot creem una variable que serà la suma de tots els vots a cada municipi.
 
 ```{r}
@@ -198,16 +237,271 @@ datos$taxaVOX <-datos$VOX/datos$totalvotos
 ```
 
 Ja podem analitzar les dades de vots a VOX en taxa.
-
-```{r}
-summary(datos$taxaVOX)
 ```
 
-Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vots que va treure va ser un 62'5%. La mitjana de vots va ser de 14'4%. És important analitzar la distribució de la variable.
+```{r}
+summary(d1$VOX)
+```
+
+Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vots que va treure va ser un 55,56%. La mitjana de vots va ser de 10,03%. És important analitzar la distribució de la variable.
 
 ```{r}
-distribucióVOX <- hist(datos$taxaVOX)
+hist(d1$VOX)
 ```
+
+Opció logit***
+
+### 2.2.1. Atur
+
+```{r}
+summary(d1$atur)
+```
+
+```{r}
+hist(d1$atur)
+```
+
+
+```{r}
+logit <- function(p,eps = 0.001){
+  p[p==0] <- eps
+  p[p==1] <- 1-eps
+  return(log(p/(1-p)))
+}
+
+cor(d2$atur,d2$VOX)
+cor((d2$atur),logit(d2$VOX))
+
+d2 <- d1 %>% filter(VOX > 0, atur > 0)
+
+```
+
+
+```{r}
+d2 %>% ggplot(aes(x = (atur), y = logit(VOX)))+
+  geom_point()
+
+```
+*** Queda pendent estudis posteriors sobre el valor 0
+
+
+```{r}
+summary(d1$atur_m24)
+```
+
+```{r}
+hist(d1$atur_m24)
+```
+
+
+```{r}
+
+cor(d2$atur_m24,d2$VOX)
+cor(logit(d2$atur_m24),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$atur_m24,logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = atur_m24, y = logit(VOX)))+
+  geom_point()
+```
+
+
+```{r}
+
+cor(d2$Renta_neta_persona,d2$VOX)
+cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
+  geom_point()
+```
+
+```{r}
+
+cor(d2$Gini_medio,d2$VOX)
+cor((d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (Gini_medio), y = logit(VOX)))+
+  geom_point()
+```
+
+```{r}
+
+cor(d2$tam_hog_medio,d2$VOX)
+cor((d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (tam_hog_medio), y = logit(VOX)))+
+  geom_point()
+```
+
+```{r}
+
+cor(d2$por_hog_uni,d2$VOX)
+cor((d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
+  geom_point()
+```
+
+```{r}
+d2 %>%
+  mutate(logit_VOX = logit(VOX), m29 = m19 + e20_29) %>% 
+  select(m29, e30_39, e40_49, e50_59, e60_69, e70_79, M80, logit_VOX) %>% 
+  cor()
+  
+```
+
+
+```{r}
+d2 %>%
+  mutate(logit_VOX = logit(VOX)) %>% 
+  select(esp, euro, asia, ame, UE, oce_apa, h, m, afr, logit_VOX) %>% 
+  cor()
+```
+
+```{r}
+model1 <- lm(logit(VOX) ~ Renta_neta_persona + atur + h, data=d2)
+summary(model1)
+```
+
+
+```{r}
+summary(d1$atur_25_44)
+```
+
+```{r}
+hist(d1$atur_25_44)
+```
+
+
+```{r}
+summary(d1$atur_M45)
+```
+
+```{r}
+hist(d1$atur_M45)
+```
+
+
+```{r}
+summary(d1$atur_h)
+```
+
+```{r}
+hist(d1$atur_d)
+```
+
+
+### 2.2.2. Percentatge d'immigrants
+
+#### Població total
+
+```{r}
+summary(d1$pob_t)
+```
+
+```{r}
+hist(d1$pob_t)
+```
+
+
+#### Espanya
+
+```{r}
+summary(d1$esp)
+```
+
+```{r}
+hist(d1$esp)
+```
+
+
+#### Europeus
+
+```{r}
+summary(d1$euro)
+```
+
+```{r}
+hist(d1$euro)
+```
+
+
+```{r}
+summary(d1$asia)
+```
+
+```{r}
+hist(d1$asia)
+```
+
+
+```{r}
+summary(d1$ame)
+```
+
+```{r}
+hist(d1$ame)
+```
+
+
+```{r}
+summary(d1$UE)
+```
+
+```{r}
+hist(d1$UE)
+```
+
+
+```{r}
+summary(d1$oce_apa)
+```
+
+```{r}
+hist(d1$oce_apa)
+```
+
+
+```{r}
+summary(d1$h)
+```
+
+```{r}
+hist(d1$h)
+```
+
+
+```{r}
+summary(d1$m)
+```
+
+```{r}
+hist(d1$m)
+```
+
+
+
+
+### Multivariant 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Es pot apreciar una distribució no normal, amb una cua a la dreta important. Això ens dona a pensar que hi han alguns municipis que poden ser uns outliers. S'haurà d'analitzar. 
 Un box plot també ens donarà informació sobre els possibles valors extrems.
@@ -549,11 +843,11 @@ plot(density(datos$taxahomes))
 ```
 
 ```{r}
-summary(datos$taxadones)
+summary(d1$m)
 ```
 
 ```{r}
-hist(datos$taxadones)
+hist(d1$m)
 ```
 
 ```{r}
@@ -569,3 +863,8 @@ boxplot(datos$taxadones, datos$taxahomes, col="blue")
 ```
 
 Es pot apreciar que hi ha una xic menys de dones que d'homes. En aquest cas, hi ha municipis que són tot homes. Els homes presenten una mediana de 51'67 mentre que les dones de 48'33. 
+
+```{r}
+
+```
+
