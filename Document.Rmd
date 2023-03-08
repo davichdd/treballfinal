@@ -1,17 +1,14 @@
 ---
-title: "Treball Final"
-subtitle: ''
-Author: Ruben Pueyo i David Donaire
-output:
-  html_document:
-    df_print: paged
+title: "L'àmbit municipal i el vot a Vox"
+subtitle: ""
+author: "Ruben Pueyo i David Donaire"
+date: "2023-03-08"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-# 1. Introducció
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(foreign)
@@ -20,40 +17,36 @@ library(dplyr)
 library(tidyverse)
 ```
 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+logit <- function(p,eps = 0.001){
+  p[p==0] <- eps
+  p[p==1] <- 1-eps
+  return(log(p/(1-p)))
+}
+```
 
+# 1. Introducció
 
-Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE i els resultats electorals al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
+Els discursos de la formació d'extrema dreta Vox se centren, en la lluita contra l'avortament, l'ecologisme, la immigració, els moviments feministes i els moviments LGTBIQ+. En el present treball veurem si hi ha una correlació entre els municipis amb una major taxa d'immigració o avortament, entre altres variables independents, i el vot a la formació de Santiago Abascal. És a dir, sense entrar en si suposen pors racionals o no, si hi ha una correlació en una major presència d'aquests fenòmens als quals Vox mostra un clar rebuig i una major suport en les localitats més afectades per aquests suposats problemes. 
 
-```{r}
+La metodologia utilitzada per a analitzar la nostra pregunta de recerca és completament quantitativa. Durem a terme una regressió múltiple per a identificar les correlacions entre el suport municipal a la formació verda i les diferents variables independents que puguin explicar parcialment la diferència de suport entre municipis.
+
+Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE, un número d'indicadors econòmics del municipi i els resultats electorals municipals per al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
+
+```{r include=FALSE}
 #Per descargar-te les dades canvia el directori al teu Ruben!
 #David: "/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt"
 #Ruben: "C:/Users/rpuey/Documents/datosfinal.txt"
+```
 
+```{r}
 data <- read.csv("/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt")
 data <- rename(data, pob_t = totalpoblacion, mun = municipio)
 ```
 
 ```{r}
-data <- mutate(data, 
-               esp = españoles/pob_t,
-               euro = europeossinespanyoles/pob_t, 
-               asia = totalasia/pob_t, 
-               ame = americana/pob_t, 
-               UE = totalunioneuropea/pob_t, 
-               oce_apa = totaloceaniayapatridas/pob_t, 
-               afr = totalafrica/pob_t, 
-               h = totalhombres/pob_t, 
-               m = totalmujeres/pob_t, 
-               m19 = menores/pob_t,
-               e20_29 = edad20_29/pob_t, 
-               e30_39 = edad30_39/pob_t, 
-               e40_49 = edad40_49/pob_t, 
-               e50_59 = edad50_59/pob_t,
-               e60_69 = edad60_69/pob_t, 
-               e70_79 = edad70_79/pob_t,
-               M80 = mayores80/pob_t)
+data <- mutate(data, esp = españoles/pob_t,euro = europeossinespanyoles/pob_t, asia = totalasia/pob_t, ame = americana/pob_t, UE = totalunioneuropea/pob_t, oce_apa = totaloceaniayapatridas/pob_t, afr = totalafrica/pob_t, h = totalhombres/pob_t, m = totalmujeres/pob_t, m19 = menores/pob_t,e20_29 = edad20_29/pob_t, e30_39 = edad30_39/pob_t, e40_49 = edad40_49/pob_t, e50_59 = edad50_59/pob_t,e60_69 = edad60_69/pob_t, e70_79 = edad70_79/pob_t,M80 = mayores80/pob_t)
 ```
-
 
 ```{r}
 padro <- readRDS(file = "data/SEPE/df_sepe_hist_m_padro.RDS")
@@ -68,21 +61,8 @@ data1 <- rename(data1, mun = id_mun)
 ```
 
 ```{r}
-data1 <- mutate(data1, v_blanc = n_vot_blanco/n_escrutinio_censo, 
-        v_nul = n_vot_nulos/n_escrutinio_censo, 
-        PSOE_p = PSOE/n_escrutinio_censo, 
-        PP_p = PP/n_escrutinio_censo, 
-        Cs_p = Cs/n_escrutinio_censo, 
-        ERC_p = ERC/n_escrutinio_censo, 
-        VOX_p = VOX/n_escrutinio_censo, 
-        JUNTS_p = JUNTS/n_escrutinio_censo, 
-        PNV_p = PNV/n_escrutinio_censo, 
-        PODEMOS_p = PODEMOS_IU/n_escrutinio_censo, 
-        Bildu_p = EH_Bildu/n_escrutinio_censo, 
-        BNG_p = BNG/n_escrutinio_censo, 
-        CUP_p = CUP/n_escrutinio_censo)
+data1 <- mutate(data1, v_blanc = n_vot_blanco/n_escrutinio_censo, v_nul = n_vot_nulos/n_escrutinio_censo, PSOE_p = PSOE/n_escrutinio_censo, PP_p = PP/n_escrutinio_censo, Cs_p = Cs/n_escrutinio_censo, ERC_p = ERC/n_escrutinio_censo, VOX_p = VOX/n_escrutinio_censo, JUNTS_p = JUNTS/n_escrutinio_censo, PNV_p = PNV/n_escrutinio_censo, PODEMOS_p = PODEMOS_IU/n_escrutinio_censo, Bildu_p = EH_Bildu/n_escrutinio_censo, BNG_p = BNG/n_escrutinio_censo, CUP_p = CUP/n_escrutinio_censo)
 ```
-
 
 ```{r}
 data$mun <- sprintf("%05d", as.numeric(data$mun))
@@ -93,84 +73,9 @@ d <- merge(data, data1, by = c("mun"))
 ```
 
 ```{r}
-d1 <- data.frame(d$mun, 
-             d$v_blanc, 
-             d$v_nul, 
-             d$PSOE_p, 
-             d$PP_p, 
-             d$Cs_p, 
-             d$ERC_p, 
-             d$VOX_p, 
-             d$JUNTS_p, 
-             d$PNV_p, 
-             d$PODEMOS_p, 
-             d$Bildu_p, 
-             d$BNG_p, 
-             d$CUP_p, 
-             d$t_atur, 
-             d$t_atur_m24, 
-             d$t_atur_25_44, 
-             d$t_atur_M45, 
-             d$t_atur_h, 
-             d$t_atur_d, 
-             d$pob_t, 
-             d$esp, 
-             d$euro, 
-             d$asia, 
-             d$ame, 
-             d$UE, 
-             d$oce_apa, 
-             d$afr,
-             d$h, 
-             d$m, 
-             d$m19,
-             d$e20_29, 
-             d$e30_39, 
-             d$e40_49, 
-             d$e50_59, 
-             d$e60_69,
-             d$e70_79, 
-             d$M80)
+d1 <- data.frame(d$mun, d$v_blanc, d$v_nul, d$PSOE_p, d$PP_p, d$Cs_p, d$ERC_p, d$VOX_p, d$JUNTS_p, d$PNV_p, d$PODEMOS_p, d$Bildu_p, d$BNG_p, d$CUP_p, d$t_atur, d$t_atur_m24, d$t_atur_25_44, d$t_atur_M45, d$t_atur_h, d$t_atur_d, d$pob_t, d$esp, d$euro, d$asia, d$ame, d$UE, d$oce_apa, d$afr,d$h, d$m, d$m19,d$e20_29, d$e30_39, d$e40_49, d$e50_59, d$e60_69,d$e70_79, d$M80)
 
-d1 <- rename(d1,
-              mun= d.mun, 
-              v_blanc= d.v_blanc, 
-              v_nul= d.v_nul, 
-              PSOE= d.PSOE_p, 
-              PP= d.PP_p, 
-              Cs= d.Cs_p, 
-              ERC= d.ERC_p, 
-              VOX= d.VOX_p, 
-              JUNTS= d.JUNTS_p, 
-              PNV= d.PNV_p, 
-              PODEMOS= d.PODEMOS_p, 
-              Bildu= d.Bildu_p, 
-              BNG= d.BNG_p, 
-              CUP= d.CUP_p, 
-              atur= d.t_atur, 
-              atur_m24= d.t_atur_m24, 
-              atur_25_44= d.t_atur_25_44, 
-              atur_M45= d.t_atur_M45, 
-              atur_h= d.t_atur_h, 
-              atur_d= d.t_atur_d, 
-              pob_t= d.pob_t, 
-              esp= d.esp, 
-              euro= d.euro, 
-              asia= d.asia, 
-              ame= d.ame, 
-              UE= d.UE, 
-              oce_apa= d.oce_apa, 
-              afr= d.afr,
-              h= d.h, 
-              m= d.m, 
-              m19= d.m19,
-              e20_29= d.e20_29, 
-              e30_39= d.e30_39, 
-              e40_49= d.e40_49, 
-              e50_59= d.e50_59, 
-              e60_69= d.e60_69,
-              e70_79= d.e70_79, 
-              M80= d.M80)
+d1 <- rename(d1, mun= d.mun, v_blanc= d.v_blanc, v_nul= d.v_nul, PSOE= d.PSOE_p, PP= d.PP_p, Cs= d.Cs_p, ERC= d.ERC_p, VOX= d.VOX_p, JUNTS= d.JUNTS_p, PNV= d.PNV_p, PODEMOS= d.PODEMOS_p, Bildu= d.Bildu_p, BNG= d.BNG_p, CUP= d.CUP_p, atur= d.t_atur, atur_m24= d.t_atur_m24, atur_25_44= d.t_atur_25_44, atur_M45= d.t_atur_M45, atur_h= d.t_atur_h, atur_d= d.t_atur_d, pob_t= d.pob_t, esp= d.esp, euro= d.euro, asia= d.asia, ame= d.ame, UE= d.UE, oce_apa= d.oce_apa, afr= d.afr,h= d.h, m= d.m, m19= d.m19,e20_29= d.e20_29, e30_39= d.e30_39, e40_49= d.e40_49, e50_59= d.e50_59, e60_69= d.e60_69,e70_79= d.e70_79, M80= d.M80)
 ```
 
 Renda
@@ -204,19 +109,20 @@ dades_socio_mun <- dades_sscc %>%
             ) %>% 
   ungroup() %>% 
   filter(Poblacion>0)
-summary(dades_socio_mun)
 
 d1 <- merge(d1,dades_socio_mun,by.x="mun",by.y="id_mun")
 d1 <- na.omit(d1)
 ```
 
-```{r}
-logit <- function(p,eps = 0.001){
-  p[p==0] <- eps
-  p[p==1] <- 1-eps
-  return(log(p/(1-p)))
-}
-```
+## 1.1. Rellevància i pertinència 
+
+Particularment a nosaltres no ens interessa fer recerca sense un motiu o interès més enllà de l'avanç de les ciències polítiques. Volem que el treball serveixi per a entendre millor per què la gent es decideix a votar per la formació d'extrema dreta a Espanya. També que aquest treball pugui ser utilitzat per alcaldies per a prevenir una expansió de l'extrema dreta a nivell local. Després dels resultats es podrà deduir si les pors als quals fa referència Vox són demandes insatisfetes pels governs locals a la població més afectada.
+
+## 1.2. Pregunta d’investigació i hipòtesis 
+
+Pregunta d’investigació: hi ha una correlació entre variables independents i el vot a VOX en eleccions municipals a Espanya?
+
+Variable dependent: vot a VOX en les municipals 
 
 5 variables independents claus: 
 1. Atur 
@@ -395,18 +301,20 @@ hist(d1$m)
 
 ### 2.2.1. Vot a Vox i atur
 
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 d2 <- d1 %>% filter(VOX > 0, atur > 0)
 ```
 
 ```{r}
 cor(d2$atur,d2$VOX)
+cor(log(d2$atur), logit(d2$VOX))
 cor((d2$atur),logit(d2$VOX))
+cor(d2$atur, log(d2$VOX))
 ```
 
 ```{r}
-d2 %>% ggplot(aes(x = (atur), y = logit(VOX)))+
-  geom_point()
+d2 %>% ggplot(aes(x = (atur), y = log(VOX))) +
+  geom_point() 
 ```
 
 *** Queda pendent estudis posteriors sobre el valor 0
@@ -414,11 +322,13 @@ d2 %>% ggplot(aes(x = (atur), y = logit(VOX)))+
 #### 2.2.1.1. Vot a Vox i atur dels menors de 24 anys
 
 ```{r}
-cor(d2$atur_m24,d2$VOX)
+cor(d2$atur_m24,d2$VOX, use = "pairwise.complete.obs")
 cor(logit(d2$atur_m24),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(d2$atur_m24,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 
-d2 %>% ggplot(aes(x = atur_m24, y = logit(VOX)))+
+```{r}
+d2 %>% ggplot(aes(x = (atur_m24), y = logit(VOX)))+
   geom_point()
 ```
 
@@ -428,7 +338,9 @@ d2 %>% ggplot(aes(x = atur_m24, y = logit(VOX)))+
 cor(d2$atur_25_44,d2$VOX)
 cor(logit(d2$atur_25_44),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(d2$atur_25_44,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 
+```{r}
 d2 %>% ggplot(aes(x = atur_25_44, y = logit(VOX)))+
   geom_point()
 ```
@@ -439,7 +351,9 @@ d2 %>% ggplot(aes(x = atur_25_44, y = logit(VOX)))+
 cor(d2$atur_M45,d2$VOX)
 cor(logit(d2$atur_M45),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(d2$atur_M45,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 
+```{r}
 d2 %>% ggplot(aes(x = atur_M45, y = logit(VOX)))+
   geom_point()
 ```
@@ -450,7 +364,7 @@ d2 %>% ggplot(aes(x = atur_M45, y = logit(VOX)))+
 d2 %>%
   mutate(logit_VOX = logit(VOX), m29 = m19 + e20_29) %>% 
   select(m29, e30_39, e40_49, e50_59, e60_69, e70_79, M80, logit_VOX) %>% 
-  cor()
+  cor() 
 ```
 
 ### 2.2.3. Vot a Vox i nacionalitat
