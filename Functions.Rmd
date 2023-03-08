@@ -9,5 +9,9 @@ graph <- function(x){
 ```
 
 ```{r}
-
+logit <- function(p,eps = 0.001){
+  p[p==0] <- eps
+  p[p==1] <- 1-eps
+  return(log(p/(1-p)))
+}
 ```
