@@ -379,11 +379,24 @@ d2 %>%
 ### 2.2.4. Vot a Vox i renta neta per persona
 
 ```{r}
+d3 <- d2 %>% filter(VOX > -2)
+```
+
+```{r}
 cor(d2$Renta_neta_persona,d2$VOX)
 cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 
 d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
+  geom_point()
+```
+
+```{r}
+cor(d2$Renta_neta_persona,d2$VOX)
+cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = (VOX)))+
   geom_point()
 ```
 
@@ -412,7 +425,6 @@ d2 %>% ggplot(aes(x = (tam_hog_medio), y = logit(VOX)))+
 ### 2.2.7. Vot a Vox i llars unipersonals
 
 ```{r}
-
 cor(d2$por_hog_uni,d2$VOX)
 cor((d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
@@ -424,13 +436,10 @@ d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
 ##  2.3. Anàlisi multivariant
 
 ```{r}
-model1 <- lm(logit(VOX) ~ Renta_neta_persona + atur + h, data=d2)
+model1 <- lm(logit(VOX) ~ Renta_neta_persona, data=d2)
 summary(model1)
 ```
 
-```{r}
-
-```
 
 
 
