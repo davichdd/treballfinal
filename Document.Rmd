@@ -450,7 +450,47 @@ d2 %>%
   select(esp, euro, asia, ame, UE, oce_apa, h, m, afr, logit_VOX, VOX) %>% 
   cor()
 ```
+### 2.2.3.1 Vot a Vox i espanyols
+```{r}
+d2 %>% ggplot(aes(x = esp, y = VOX))+
+  geom_point()
+```
+### 2.2.3.2 Vot a Vox i nacionalitat europea
 
+```{r}
+d2 %>% ggplot(aes(x = euro, y = VOX))+
+  geom_point()
+```
+### 2.2.3.3 Vot a Vox i nacionalitat asiàtica
+
+```{r}
+d2 %>% ggplot(aes(x = asia, y = logit_VOX))+
+  geom_point()
+```
+### 2.2.3.4 Vot a Vox i nacionalitat americana
+
+```{r}
+d2 %>% ggplot(aes(x = ame, y = logit_VOX))+
+  geom_point()
+```
+### 2.2.3.5 Vot a Vox i UE
+
+```{r}
+d2 %>% ggplot(aes(x = UE, y = VOX))+
+  geom_point()
+```
+### 2.2.3.6 Vot a Vox i oceania i apàtrides 
+
+```{r}
+d2 %>% ggplot(aes(x = oce_apa, y = logit_VOX))+
+  geom_point()
+```
+### 2.2.3.7 Vot a Vox i oceania i africans 
+
+```{r}
+d2 %>% ggplot(aes(x = afr, y = logit_VOX))+
+  geom_point()
+```
 ### 2.2.4. Vot a Vox i renta neta per persona
 
 ```{r}
@@ -459,7 +499,7 @@ d3 <- d2 %>% filter(VOX > -2)
 
 ```{r}
 cor(d2$Renta_neta_persona,d2$VOX)
-cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$Renta_neta_persona,logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 
 d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
@@ -471,7 +511,7 @@ cor(d2$Renta_neta_persona,d2$VOX)
 cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 
-d2 %>% ggplot(aes(x = (Renta_neta_persona), y = (VOX)))+
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
   geom_point()
 ```
 
@@ -514,27 +554,65 @@ d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
 model1 <- lm(logit(VOX) ~ Renta_neta_persona, data=d2)
 summary(model1)
 ```
+```{r}
+names(d2)
+```
 
+```{r}
+model2 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE, data=d2)
+summary(model2)
+```
+```{r}
+model3 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE + atur_d + atur_h, data=d2)
+summary(model3)
+```
+```{r}
+model4 <- lm(logit(VOX) ~ Renta_neta_persona + esp + pob_t + UE + atur, data=d2)
+summary(model4)
+```
+```{r}
+model5 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE + atur_d + atur_h + asia, data=d2)
+summary(model5)
+```
+```{r}
+model6 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE + atur_d + atur_h + ame, data=d2)
+summary(model6)
+```
+```{r}
+model7 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE + atur_d + atur_h + ame + oce_apa, data=d2)
+summary(model7)
+```
+```{r}
+model8 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE + atur_d + atur_h + ame + oce_apa + afr, data=d2)
+summary(model8)
+```
+```{r}
+names(d2)
+```
+```{r}
+model9 <- lm(logit(VOX) ~ Renta_neta_persona + esp + atur_m24 + pob_t + UE + atur_d + atur_h + ame + oce_apa + afr + e40_49 + e50_59 + m19, data=d2)
+summary(model9)
+```
 
-
+##  2.4. Anàlisi de components principals
 
 ```{r}
 library(FactoMineR)
 library(factoextra)
-d3 <- d2 %>%
+d4 <- d2 %>%
   select(PSOE, VOX, PP, Cs, ERC, JUNTS, PNV, PODEMOS, Bildu, BNG, CUP) %>% 
   scale()
 
-head(d3)
+head(d4)
 ```
 
 
 ```{r}
-round(cov(d3),3)
+round(cov(d4),3)
 ```
 
 ```{r}
-pca_municipi <- princomp(d3)
+pca_municipi <- princomp(d4)
 
 summary(pca_municipi)
 ```
@@ -557,7 +635,7 @@ plot(pca_municipi$scores[,1:2], pch =".", main ="Gràfic de municipis")
 biplot(pca_municipi, cex=0.7, col=c("grey","red"))
 ```
 ```{r}
-respca_municipi <- PCA(d3, graph=FALSE)
+respca_municipi <- PCA(d4, graph=FALSE)
 summary(respca_municipi)
 ```
 ```{r}
