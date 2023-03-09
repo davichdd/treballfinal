@@ -1,13 +1,7 @@
 ```{r}
-graph <- function(x){
-  if(is.numeric(x) == TRUE) 
-    {hist(table(x))} 
-  if(is.numeric(x) == FALSE) 
-    {barplot(table(x))}
-  return()
+logit <- function(p,eps = 0.001){
+  p[p==0] <- eps
+  p[p==1] <- 1-eps
+  return(log(p/(1-p)))
 }
-```
-
-```{r}
-
 ```

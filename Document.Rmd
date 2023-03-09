@@ -1,32 +1,45 @@
 ---
-title: "Treball Final"
-subtitle: ''
-Author: Ruben Pueyo i David Donaire
-output:
-  html_document:
-    df_print: paged
+title: "L'àmbit municipal i el vot a Vox"
+subtitle: ""
+author: "Ruben Pueyo i David Donaire"
+date: "2023-03-08"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# 1. Introducció
-
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 library(foreign)
 library(knitr)
 library(dplyr)
 library(tidyverse)
 ```
 
-Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE i els resultats electorals al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+logit <- function(p,eps = 0.001){
+  p[p==0] <- eps
+  p[p==1] <- 1-eps
+  return(log(p/(1-p)))
+}
+```
 
-```{r}
+# 1. Introducció
+
+Els discursos de la formació d'extrema dreta Vox se centren, en la lluita contra l'avortament, l'ecologisme, la immigració, els moviments feministes i els moviments LGTBIQ+. En el present treball veurem si hi ha una correlació entre els municipis amb una major taxa d'immigració o avortament, entre altres variables independents, i el vot a la formació de Santiago Abascal. És a dir, sense entrar en si suposen pors racionals o no, si hi ha una correlació en una major presència d'aquests fenòmens als quals Vox mostra un clar rebuig i una major suport en les localitats més afectades per aquests suposats problemes. 
+
+La metodologia utilitzada per a analitzar la nostra pregunta de recerca és completament quantitativa. Durem a terme una regressió múltiple per a identificar les correlacions entre el suport municipal a la formació verda i les diferents variables independents que puguin explicar parcialment la diferència de suport entre municipis.
+
+Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE, un número d'indicadors econòmics del municipi i els resultats electorals municipals per al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
+
+```{r include=FALSE}
 #Per descargar-te les dades canvia el directori al teu Ruben!
 #David: "/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt"
 #Ruben: "C:/Users/rpuey/Documents/datosfinal.txt"
+```
 
+```{r}
 data <- read.csv("/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt")
 data <- datosfinal
 data <- rename(data, pob_t = totalpoblacion, mun = municipio)
@@ -34,6 +47,7 @@ names(data)
 ```
 
 ```{r}
+<<<<<<< HEAD
 data <- mutate(data, 
                esp = espaÃ.oles/pob_t,
                euro = europeossinespanyoles/pob_t, 
@@ -52,8 +66,10 @@ data <- mutate(data,
                e60_69 = edad60_69/pob_t, 
                e70_79 = edad70_79/pob_t,
                M80 = mayores80/pob_t)
+=======
+data <- mutate(data, esp = españoles/pob_t,euro = europeossinespanyoles/pob_t, asia = totalasia/pob_t, ame = americana/pob_t, UE = totalunioneuropea/pob_t, oce_apa = totaloceaniayapatridas/pob_t, afr = totalafrica/pob_t, h = totalhombres/pob_t, m = totalmujeres/pob_t, m19 = menores/pob_t,e20_29 = edad20_29/pob_t, e30_39 = edad30_39/pob_t, e40_49 = edad40_49/pob_t, e50_59 = edad50_59/pob_t,e60_69 = edad60_69/pob_t, e70_79 = edad70_79/pob_t,M80 = mayores80/pob_t)
+>>>>>>> bb7e78b61ec133da6fb437f39d10a075e33fe0c3
 ```
-
 
 ```{r}
 padro <- readRDS(file = "data/SEPE/df_sepe_hist_m_padro.RDS")
@@ -68,21 +84,8 @@ data1 <- rename(data1, mun = id_mun)
 ```
 
 ```{r}
-data1 <- mutate(data1, v_blanc = n_vot_blanco/n_escrutinio_censo, 
-        v_nul = n_vot_nulos/n_escrutinio_censo, 
-        PSOE_p = PSOE/n_escrutinio_censo, 
-        PP_p = PP/n_escrutinio_censo, 
-        Cs_p = Cs/n_escrutinio_censo, 
-        ERC_p = ERC/n_escrutinio_censo, 
-        VOX_p = VOX/n_escrutinio_censo, 
-        JUNTS_p = JUNTS/n_escrutinio_censo, 
-        PNV_p = PNV/n_escrutinio_censo, 
-        PODEMOS_p = PODEMOS_IU/n_escrutinio_censo, 
-        Bildu_p = EH_Bildu/n_escrutinio_censo, 
-        BNG_p = BNG/n_escrutinio_censo, 
-        CUP_p = CUP/n_escrutinio_censo)
+data1 <- mutate(data1, v_blanc = n_vot_blanco/n_escrutinio_censo, v_nul = n_vot_nulos/n_escrutinio_censo, PSOE_p = PSOE/n_escrutinio_censo, PP_p = PP/n_escrutinio_censo, Cs_p = Cs/n_escrutinio_censo, ERC_p = ERC/n_escrutinio_censo, VOX_p = VOX/n_escrutinio_censo, JUNTS_p = JUNTS/n_escrutinio_censo, PNV_p = PNV/n_escrutinio_censo, PODEMOS_p = PODEMOS_IU/n_escrutinio_censo, Bildu_p = EH_Bildu/n_escrutinio_censo, BNG_p = BNG/n_escrutinio_censo, CUP_p = CUP/n_escrutinio_censo)
 ```
-
 
 ```{r}
 data$mun <- sprintf("%05d", as.numeric(data$mun))
@@ -93,87 +96,12 @@ d <- merge(data, data1, by = c("mun"))
 ```
 
 ```{r}
-d1 <- data.frame(d$mun, 
-             d$v_blanc, 
-             d$v_nul, 
-             d$PSOE_p, 
-             d$PP_p, 
-             d$Cs_p, 
-             d$ERC_p, 
-             d$VOX_p, 
-             d$JUNTS_p, 
-             d$PNV_p, 
-             d$PODEMOS_p, 
-             d$Bildu_p, 
-             d$BNG_p, 
-             d$CUP_p, 
-             d$t_atur, 
-             d$t_atur_m24, 
-             d$t_atur_25_44, 
-             d$t_atur_M45, 
-             d$t_atur_h, 
-             d$t_atur_d, 
-             d$pob_t, 
-             d$esp, 
-             d$euro, 
-             d$asia, 
-             d$ame, 
-             d$UE, 
-             d$oce_apa, 
-             d$afr,
-             d$h, 
-             d$m, 
-             d$m19,
-             d$e20_29, 
-             d$e30_39, 
-             d$e40_49, 
-             d$e50_59, 
-             d$e60_69,
-             d$e70_79, 
-             d$M80)
+d1 <- data.frame(d$mun, d$v_blanc, d$v_nul, d$PSOE_p, d$PP_p, d$Cs_p, d$ERC_p, d$VOX_p, d$JUNTS_p, d$PNV_p, d$PODEMOS_p, d$Bildu_p, d$BNG_p, d$CUP_p, d$t_atur, d$t_atur_m24, d$t_atur_25_44, d$t_atur_M45, d$t_atur_h, d$t_atur_d, d$pob_t, d$esp, d$euro, d$asia, d$ame, d$UE, d$oce_apa, d$afr,d$h, d$m, d$m19,d$e20_29, d$e30_39, d$e40_49, d$e50_59, d$e60_69,d$e70_79, d$M80)
 
-d1 <- rename(d1,
-              mun= d.mun, 
-              v_blanc= d.v_blanc, 
-              v_nul= d.v_nul, 
-              PSOE= d.PSOE_p, 
-              PP= d.PP_p, 
-              Cs= d.Cs_p, 
-              ERC= d.ERC_p, 
-              VOX= d.VOX_p, 
-              JUNTS= d.JUNTS_p, 
-              PNV= d.PNV_p, 
-              PODEMOS= d.PODEMOS_p, 
-              Bildu= d.Bildu_p, 
-              BNG= d.BNG_p, 
-              CUP= d.CUP_p, 
-              atur= d.t_atur, 
-              atur_m24= d.t_atur_m24, 
-              atur_25_44= d.t_atur_25_44, 
-              atur_M45= d.t_atur_M45, 
-              atur_h= d.t_atur_h, 
-              atur_d= d.t_atur_d, 
-              pob_t= d.pob_t, 
-              esp= d.esp, 
-              euro= d.euro, 
-              asia= d.asia, 
-              ame= d.ame, 
-              UE= d.UE, 
-              oce_apa= d.oce_apa, 
-              afr= d.afr,
-              h= d.h, 
-              m= d.m, 
-              m19= d.m19,
-              e20_29= d.e20_29, 
-              e30_39= d.e30_39, 
-              e40_49= d.e40_49, 
-              e50_59= d.e50_59, 
-              e60_69= d.e60_69,
-              e70_79= d.e70_79, 
-              M80= d.M80)
+d1 <- rename(d1, mun= d.mun, v_blanc= d.v_blanc, v_nul= d.v_nul, PSOE= d.PSOE_p, PP= d.PP_p, Cs= d.Cs_p, ERC= d.ERC_p, VOX= d.VOX_p, JUNTS= d.JUNTS_p, PNV= d.PNV_p, PODEMOS= d.PODEMOS_p, Bildu= d.Bildu_p, BNG= d.BNG_p, CUP= d.CUP_p, atur= d.t_atur, atur_m24= d.t_atur_m24, atur_25_44= d.t_atur_25_44, atur_M45= d.t_atur_M45, atur_h= d.t_atur_h, atur_d= d.t_atur_d, pob_t= d.pob_t, esp= d.esp, euro= d.euro, asia= d.asia, ame= d.ame, UE= d.UE, oce_apa= d.oce_apa, afr= d.afr,h= d.h, m= d.m, m19= d.m19,e20_29= d.e20_29, e30_39= d.e30_39, e40_49= d.e40_49, e50_59= d.e50_59, e60_69= d.e60_69,e70_79= d.e70_79, M80= d.M80)
 ```
 
-## renda
+Renda
 
 ```{r}
 df01_W_2019 <- readRDS(file="data/ine/dadesRENTA_01_2019.rds")
@@ -204,12 +132,20 @@ dades_socio_mun <- dades_sscc %>%
             ) %>% 
   ungroup() %>% 
   filter(Poblacion>0)
-summary(dades_socio_mun)
 
 d1 <- merge(d1,dades_socio_mun,by.x="mun",by.y="id_mun")
 d1 <- na.omit(d1)
 ```
 
+## 1.1. Rellevància i pertinència 
+
+Particularment a nosaltres no ens interessa fer recerca sense un motiu o interès més enllà de l'avanç de les ciències polítiques. Volem que el treball serveixi per a entendre millor per què la gent es decideix a votar per la formació d'extrema dreta a Espanya. També que aquest treball pugui ser utilitzat per alcaldies per a prevenir una expansió de l'extrema dreta a nivell local. Després dels resultats es podrà deduir si les pors als quals fa referència Vox són demandes insatisfetes pels governs locals a la població més afectada.
+
+## 1.2. Pregunta d’investigació i hipòtesis 
+
+Pregunta d’investigació: hi ha una correlació entre variables independents i el vot a VOX en eleccions municipals a Espanya?
+
+Variable dependent: vot a VOX en les municipals 
 
 5 variables independents claus: 
 1. Atur 
@@ -218,42 +154,25 @@ d1 <- na.omit(d1)
 4. Sexe, 
 5. Percentatge de vot a partits nacionalistes
 
-#  2. Variables a analitzar
-##  2.1. Variable dependent
-##  2.2. Variables independents 
+# 2. Variables 
 
-Un cop carregada la nostra taula de dades, és important transformar determinades variables com és la nostra variable depenent, que és el vot a VOX. En aquest cas, el que farem és utilitzar la dada relativa respecte del total de vots a cada municipi, per tal de tenir una aproximació de en quins valors es mou el número de vots de vots de VOX respecte del total. 
+## 2.1. Anàlisi univariant
 
-``` 
-Primer de tot creem una variable que serà la suma de tots els vots a cada municipi.
-
-```{r}
-names(datos)
-datos$totalvotos <- rowSums(datos[ , c(2:14)], na.rm=TRUE)
-```
-
-Ara calcularem la taxa de vots de VOX
-
-```{r}
-datos$taxaVOX <-datos$VOX/datos$totalvotos
-```
-
-Ja podem analitzar les dades de vots a VOX en taxa.
-```
+### 2.1.1. Percentatge de vot a Vox (Variable dependent)
 
 ```{r}
 summary(d1$VOX)
 ```
 
-Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vots que va treure va ser un 55,56%. La mitjana de vots va ser de 10,03%. És important analitzar la distribució de la variable.
+Podem veure que hi han municipis on VOX no va treure cap vot, i el màxim de vots que va treure va ser un 45,05%. La mitjana de vots va ser de 10,20%. És important analitzar la distribució de la variable.
 
 ```{r}
 hist(d1$VOX)
 ```
 
-Opció logit***
+### 2.1.2. Atur (Variable independent)
 
-### 2.2.1. Atur
+#### Atur total
 
 ```{r}
 summary(d1$atur)
@@ -264,28 +183,7 @@ hist(d1$atur)
 ```
 
 
-```{r}
-logit <- function(p,eps = 0.001){
-  p[p==0] <- eps
-  p[p==1] <- 1-eps
-  return(log(p/(1-p)))
-}
-
-cor(d2$atur,d2$VOX)
-cor((d2$atur),logit(d2$VOX))
-
-d2 <- d1 %>% filter(VOX > 0, atur > 0)
-
-```
-
-
-```{r}
-d2 %>% ggplot(aes(x = (atur), y = logit(VOX)))+
-  geom_point()
-
-```
-*** Queda pendent estudis posteriors sobre el valor 0
-
+#### Atur de les persones menors de 24 anys
 
 ```{r}
 summary(d1$atur_m24)
@@ -296,78 +194,7 @@ hist(d1$atur_m24)
 ```
 
 
-```{r}
-
-cor(d2$atur_m24,d2$VOX)
-cor(logit(d2$atur_m24),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(d2$atur_m24,logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = atur_m24, y = logit(VOX)))+
-  geom_point()
-```
-
-
-```{r}
-
-cor(d2$Renta_neta_persona,d2$VOX)
-cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
-  geom_point()
-```
-
-```{r}
-
-cor(d2$Gini_medio,d2$VOX)
-cor((d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (Gini_medio), y = logit(VOX)))+
-  geom_point()
-```
-
-```{r}
-
-cor(d2$tam_hog_medio,d2$VOX)
-cor((d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (tam_hog_medio), y = logit(VOX)))+
-  geom_point()
-```
-
-```{r}
-
-cor(d2$por_hog_uni,d2$VOX)
-cor((d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
-  geom_point()
-```
-
-```{r}
-d2 %>%
-  mutate(logit_VOX = logit(VOX), m29 = m19 + e20_29) %>% 
-  select(m29, e30_39, e40_49, e50_59, e60_69, e70_79, M80, logit_VOX) %>% 
-  cor()
-  
-```
-
-
-```{r}
-d2 %>%
-  mutate(logit_VOX = logit(VOX)) %>% 
-  select(esp, euro, asia, ame, UE, oce_apa, h, m, afr, logit_VOX) %>% 
-  cor()
-```
-
-```{r}
-model1 <- lm(logit(VOX) ~ Renta_neta_persona + atur + h, data=d2)
-summary(model1)
-```
-
+#### Atur de les persones entre 25 i 44 anys
 
 ```{r}
 summary(d1$atur_25_44)
@@ -378,6 +205,8 @@ hist(d1$atur_25_44)
 ```
 
 
+#### Atur de les persones majors de 45 anys
+
 ```{r}
 summary(d1$atur_M45)
 ```
@@ -387,16 +216,7 @@ hist(d1$atur_M45)
 ```
 
 
-```{r}
-summary(d1$atur_h)
-```
-
-```{r}
-hist(d1$atur_d)
-```
-
-
-### 2.2.2. Percentatge d'immigrants
+### 2.1.3. Percentatge d'immigrants
 
 #### Població total
 
@@ -431,6 +251,8 @@ hist(d1$euro)
 ```
 
 
+#### Asiàtics
+
 ```{r}
 summary(d1$asia)
 ```
@@ -439,6 +261,8 @@ summary(d1$asia)
 hist(d1$asia)
 ```
 
+
+#### Americans
 
 ```{r}
 summary(d1$ame)
@@ -449,6 +273,8 @@ hist(d1$ame)
 ```
 
 
+#### Unió Europea
+
 ```{r}
 summary(d1$UE)
 ```
@@ -458,6 +284,8 @@ hist(d1$UE)
 ```
 
 
+#### Oceania i apàtrides
+
 ```{r}
 summary(d1$oce_apa)
 ```
@@ -466,6 +294,9 @@ summary(d1$oce_apa)
 hist(d1$oce_apa)
 ```
 
+### 2.1.4. Sexe
+
+#### Homes
 
 ```{r}
 summary(d1$h)
@@ -476,6 +307,8 @@ hist(d1$h)
 ```
 
 
+#### Dones
+
 ```{r}
 summary(d1$m)
 ```
@@ -487,386 +320,162 @@ hist(d1$m)
 
 
 
-### Multivariant 
+## 2.2. Anàlisi bivariant
 
+### 2.2.1. Vot a Vox i atur
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Es pot apreciar una distribució no normal, amb una cua a la dreta important. Això ens dona a pensar que hi han alguns municipis que poden ser uns outliers. S'haurà d'analitzar. 
-Un box plot també ens donarà informació sobre els possibles valors extrems.
-
-```{r}
-boxplot(datos$taxaVOX, col="blue")
-```
-
-Es pot observar que pràcticament a partir del 40% es comencen a observar valors extrems. Per la part inferior no s'observa cap. 
-
-```{r}
-qqnorm(datos$taxaVOX)
-```
-```{r}
-plot(density(datos$taxaVOX))
-```
-
-Amb la funció density i realitzant un gràfic, es pot veure millor la distribució de la taxa de vot de VOX i com a partir del 40% de vot presenta una distribució no normal. 
-
-```{r}
-names(datos)
-```
-
-Transformem les diferents variables d'interés en taxes.
-
-```{r}
-datos$taxaamericana <- datos$americana/datos$totalpoblacion
-datos$taxaasiatica <- datos$asiatica/datos$totalpoblacion
-datos$taxaeuropeossinespanyoles <- datos$europeossinespanyoles/datos$totalpoblacion
-datos$taxaespanyols <- datos$espaÃ.oles/datos$totalpoblacion
-datos$taxatotalunioneuropea <- datos$totalunioneuropea/datos$totalpoblacion
-datos$taxaambosexostotalamericana <- datos$ambosexostotalamericana/datos$totalpoblacion
-datos$taxatotaloceaniayapatridas <- datos$totaloceaniayapatridas/datos$totalpoblacion
-datos$taxatotaloceaniayapatridas <- datos$totaloceaniayapatridas/datos$totalpoblacion
-datos$taxaestrangers <- datos$totalextranjeros/datos$totalpoblacion
-datos$taxatotalafrica <- datos$totalafrica/datos$totalpoblacion
-datos$taxatotalafrica <- datos$totalafrica/datos$totalpoblacion
-datos$taxahomesespanyols <- datos$hombresespanyoles/datos$totalpoblacion
-datos$taxadonesespanyoles <- datos$mujeresespanyolas/datos$totalpoblacion
-```
-
-Ara farem el mateix, però pel sexe.
-
-```{r}
-datos$taxahomes <- datos$totalhombres/datos$totalpoblacion
-datos$taxadones <- datos$totalmujeres/datos$totalpoblacion
-```
-
-També calcularem les taxes pels diferents grups d'edat.
-
-```{r}
-datos$taxamenors <- datos$menores/datos$totalpoblacion
-datos$taxaedat20_29 <- datos$edad20_29/datos$totalpoblacion
-datos$taxaedat30_39 <- datos$edad30_39/datos$totalpoblacion
-datos$taxaedat40_49 <- datos$edad40_49/datos$totalpoblacion
-datos$taxaedat50_59 <- datos$edad50_59/datos$totalpoblacion
-datos$taxaedat60_69 <- datos$edad60_69/datos$totalpoblacion
-datos$taxaedat70_79 <- datos$edad70_79/datos$totalpoblacion
-datos$taxamajors80 <- datos$mayores80/datos$totalpoblacion
-```
-
-Per últim, en aquest tractament de les dades, realitzarem també les taxes dels vots als diferents partits:
-
-```{r}
-datos$taxavotPSOE <- datos$PSOE/datos$totalvotos
-datos$taxavotsenblanc <- datos$Votosenblanco/datos$totalvotos
-datos$taxavotsnuls <- datos$Votosnulos/datos$totalvotos
-datos$taxaPP <- datos$PP/datos$totalvotos
-datos$taxaCs <- datos$Cs/datos$totalvotos
-datos$taxaERC <- datos$ERC/datos$totalvotos
-datos$taxaJUNTS <- datos$JUNTS/datos$totalvotos
-datos$taxaPODEMOS_IU <- datos$PODEMOS_IU/datos$totalvotos
-datos$taxaEH_Bildu <- datos$EH_Bildu/datos$totalvotos
-datos$taxaBNG <- datos$BNG/datos$totalvotos
-datos$taxaCUP<- datos$CUP/datos$totalvotos
-```
-
-Començarem analitzant la variable total estrangers, per veure la seva distribució. Emprarem també la taxa respecte la població total. 
-
-```{r}
-summary(datos$taxaestrangers)
-```
-
-S'aprecia municipis on no hi ha estrangers, però també s'observen municipios on un 90% de la població són estrangers.
-
-```{r}
-distribucioestrangers <- hist(datos$taxaestrangers)
-```
-
-```{r}
-boxplot(datos$taxaestrangers, col="blue")
-```
-
-La distribució d'aquesta variable encara presenta més outliers.Aquests municipis podrien ser aquells que requereixen mà d'obra al camp. 
-
-```{r}
-plot(density(datos$taxaestrangers))
-```
-
-Amb la densitat de la distribució de la variable, encara s'aprecia més aquesta diferència i com la cua cap a la dreta és força llarga, confirmant aquesta distribució no normal. 
-
-VOX és un partit el qual centra el seu discurs en la immigració de caràcter musulmà i el que ells consideren immigració dolenta. De fet, a una conferència al 2018, Abascal afirmava: “No es lo mismo un inmigrante hispanoamericano que la inmigración de los países islámicos” (https://www.eldiario.es/canariasahora/sociedad/video-abascal-vox-hispanoamericano-inmigracion_1_2166996.html). Per tant, a l'anàlisi de la immigració, ens centrarem d'entrada al total d'estrangers, la taxa africana, americana i asiàtica, ja que també és una font important d'immigració. 
-
-```{r}
-summary(datos$taxaamericana)
-```
-```{r}
-hist(datos$taxaamericana)
-```
-
-```{r}
-boxplot(datos$taxaamericana, col="blue")
-```
-
-```{r}
-plot(density(datos$taxaamericana))
-```
-
-En aquest cas tenim una distribució del 0 al 21%, amb una distribució no normal. S'aprecia una mitjana d'un 1% i una mediana de 0'006.
-
-```{r}
-summary(datos$taxaasiatica)
-```
-
-```{r}
-hist(datos$taxaasiatica)
-```
-
-```{r}
-boxplot(datos$taxaasiatica, col="blue")
-```
-
-```{r}
-plot(density(datos$taxaasiatica))
-```
-
-En el cas dels asiàtics, la distribució encara és menys normal.
-
-```{r}
-summary(datos$taxatotalafrica)
-```
-
-```{r}
-hist(datos$taxatotalafrica)
-```
-
-```{r}
-boxplot(datos$taxatotalafrica, col="blue")
-```
-
-```{r}
-plot(density(datos$taxatotalafrica))
-```
-
-També, la taxa d'africans presenta una distribució no normal que va des de 0 a 37'7%.
-
-Per útim, també serà interesant analitzar com es distribueix la taxa d'espanyols, ja que vist com es distribuia la taxa d'estrangers, pot ser que ens trobem alguna distribució diferent.
-
-```{r}
-summary(datos$taxaespanyols)
-```
-
-```{r}
-hist(datos$taxaespanyols)
-```
-
-```{r}
-boxplot(datos$taxaespanyols, col="blue")
+```{r message=FALSE, warning=FALSE, include=FALSE}
+d2 <- d1 %>% filter(VOX > 0, atur > 0)
 ```
 
 ```{r}
-plot(density(datos$taxaespanyols))
+cor(d2$atur,d2$VOX)
+cor(log(d2$atur), logit(d2$VOX))
+cor((d2$atur),logit(d2$VOX))
+cor(d2$atur, log(d2$VOX))
 ```
-
-Efectivament, en quant a la distribució de la taxa d'espanyols, també trobem que no és normal. En aquest cas la cua va cap a l'esquerra, en contraposició a la taxa d'estrangers. Els outliers també es presenten a la part baixa del boxplot. 
 
-EDAT:
-
 ```{r}
-summary(datos$taxamenors)
+d2 %>% ggplot(aes(x = (atur), y = log(VOX))) +
+  geom_point() 
 ```
 
-```{r}
-hist(datos$taxamenors)
-```
+*** Queda pendent estudis posteriors sobre el valor 0
 
-```{r}
-boxplot(datos$taxamenors, col="blue")
-```
+#### 2.2.1.1. Vot a Vox i atur dels menors de 24 anys
 
 ```{r}
-plot(density(datos$taxamenors))
+cor(d2$atur_m24,d2$VOX, use = "pairwise.complete.obs")
+cor(logit(d2$atur_m24),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$atur_m24,logit(d2$VOX), use = "pairwise.complete.obs")
 ```
 
-Respecte a l'edat, la distribució una major normalitat que les anteriors analitzades. Hi ha municipios amb 0% de menors i a l'altra banda 28'2% de menors, pero gairebé sense presència de outliers. 
-
 ```{r}
-summary(datos$taxaedat20_29)
+d2 %>% ggplot(aes(x = (atur_m24), y = logit(VOX)))+
+  geom_point()
 ```
 
-```{r}
-hist(datos$taxaedat20_29)
-```
+#### 2.2.1.2. Vot a Vox i atur de persones entre 25 y 44 anys
 
 ```{r}
-boxplot(datos$taxaedat20_29, col="blue")
+cor(d2$atur_25_44,d2$VOX)
+cor(logit(d2$atur_25_44),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$atur_25_44,logit(d2$VOX), use = "pairwise.complete.obs")
 ```
 
 ```{r}
-plot(density(datos$taxaedat20_29))
+d2 %>% ggplot(aes(x = atur_25_44, y = logit(VOX)))+
+  geom_point()
 ```
 
-La taxa d'edat de 20 a 29 anys ja presenta una distribució menys normal, que va des de 0% a 31%. Tot i així la mitjana i la mediana es troben força juntes. Amb més de 8000 municipis i de diferents grandàries, tot sembla indicar que anirem trobant aquestes distorsions. 
+#### 2.2.1.3. Vot a Vox i atur de majors de 45 anys
 
 ```{r}
-summary(datos$taxaedat30_39)
+cor(d2$atur_M45,d2$VOX)
+cor(logit(d2$atur_M45),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$atur_M45,logit(d2$VOX), use = "pairwise.complete.obs")
 ```
 
 ```{r}
-hist(datos$taxaedat30_39)
+d2 %>% ggplot(aes(x = atur_M45, y = logit(VOX)))+
+  geom_point()
 ```
 
-```{r}
-boxplot(datos$taxaedat30_39, col="blue")
-```
+### 2.2.2. Vot a Vox i edat 
 
 ```{r}
-plot(density(datos$taxaedat30_39))
+d2 %>%
+  mutate(logit_VOX = logit(VOX), m29 = m19 + e20_29) %>% 
+  select(m29, e30_39, e40_49, e50_59, e60_69, e70_79, M80, logit_VOX) %>% 
+  cor() 
 ```
 
-Una cosa similar passa amb la franja d'edat de 30 a 39, però amb una distribució més normalitzada, tot i que presenta una tendència a allargar-se cap a la dreta.
+### 2.2.3. Vot a Vox i nacionalitat
 
 ```{r}
-summary(datos$taxaedat40_49)
+d2 %>%
+  mutate(logit_VOX = logit(VOX)) %>% 
+  select(esp, euro, asia, ame, UE, oce_apa, h, m, afr, logit_VOX) %>% 
+  cor()
 ```
 
-```{r}
-hist(datos$taxaedat40_49)
-```
-
-```{r}
-boxplot(datos$taxaedat40_49, col="blue")
-```
+### 2.2.4. Vot a Vox i renta neta per persona
 
 ```{r}
-plot(density(datos$taxaedat40_49))
+d3 <- d2 %>% filter(VOX > -2)
 ```
-
-La franja de 40 a 49 presenta una distribució més centrada, amb municipis amb un 42% de població en aquesta edat. La mitjana i la mediana es troben força a prop. 
 
 ```{r}
-summary(datos$taxaedat50_59)
-```
+cor(d2$Renta_neta_persona,d2$VOX)
+cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 
-```{r}
-hist(datos$taxaedat50_59)
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
+  geom_point()
 ```
 
 ```{r}
-boxplot(datos$taxaedat50_59, col="blue")
-```
+cor(d2$Renta_neta_persona,d2$VOX)
+cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 
-```{r}
-plot(density(datos$taxaedat50_59))
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = (VOX)))+
+  geom_point()
 ```
 
-El màxim continua augmentant. Això ens confirmaria, junt amb l'increment progresiu que es va donant als valor de la mediaa i la mitjana, la piràmide de població invertida que trobem a Espanya. 
+### 2.2.5. Vot a vox i índex de Gini 
 
 ```{r}
-summary(datos$taxaedat60_69)
-```
+cor(d2$Gini_medio,d2$VOX)
+cor((d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 
-```{r}
-hist(datos$taxaedat60_69)
+d2 %>% ggplot(aes(x = (Gini_medio), y = logit(VOX)))+
+  geom_point()
 ```
 
-```{r}
-boxplot(datos$taxaedat60_69, col="blue")
-```
+### 2.2.6. Vot a Vox i tamany mig de la llar
 
 ```{r}
-plot(density(datos$taxaedat60_69))
-```
-
-El mateix passa amb aquesta franja d'edat, tot i que la mediana i la mitjana cauen una mica. 
+cor(d2$tam_hog_medio,d2$VOX)
+cor((d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 
-```{r}
-summary(datos$taxaedat70_79)
+d2 %>% ggplot(aes(x = (tam_hog_medio), y = logit(VOX)))+
+  geom_point()
 ```
 
-```{r}
-hist(datos$taxaedat70_79)
-```
+### 2.2.7. Vot a Vox i llars unipersonals
 
 ```{r}
-boxplot(datos$taxaedat70_79, col="blue")
-```
+cor(d2$por_hog_uni,d2$VOX)
+cor((d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
 
-```{r}
-plot(density(datos$taxaedat70_79))
+d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
+  geom_point()
 ```
 
-En aquest cas, tot i que hi ha municipis que presenten un 80% de població entre 70 i 79, la mitjana i la mitja tornen a caure. Això ens podria portar a pensar que una gran part de la generació del baby boom estaria dintre de la franja d'edat de 50 a 59. Dada interesant si pensem en clau de pensions. 
+##  2.3. Anàlisi multivariant
 
 ```{r}
-summary(datos$taxamajors80)
+model1 <- lm(logit(VOX) ~ Renta_neta_persona, data=d2)
+summary(model1)
 ```
 
-```{r}
-hist(datos$taxamajors80)
-```
-
-```{r}
-boxplot(datos$taxamajors80, col="blue")
-```
 
-```{r}
-plot(density(datos$taxamajors80))
-```
 
-Respecte a la taxa de majors de 80 anys, també presenta una distribució no normal. A banda d'això, és curiós constatar que la mitjana sigui de gairebé el 12%, éssent la mediana d'un 10'4%. És un volum important de població major de 80 anys als municipis. 
 
-SEXE:
 
-```{r}
-summary(datos$taxahomes)
-```
 
-```{r}
-hist(datos$taxahomes)
-```
 
-```{r}
-boxplot(datos$taxahomes, col="blue")
-```
 
-```{r}
-plot(density(datos$taxahomes))
-```
 
-```{r}
-summary(d1$m)
-```
 
-```{r}
-hist(d1$m)
-```
 
-```{r}
-boxplot(datos$taxadones, col="blue")
-```
 
-```{r}
-plot(density(datos$taxadones))
-```
 
-```{r}
-boxplot(datos$taxadones, datos$taxahomes, col="blue")
-```
 
-Es pot apreciar que hi ha una xic menys de dones que d'homes. En aquest cas, hi ha municipis que són tot homes. Els homes presenten una mediana de 51'67 mentre que les dones de 48'33. 
 
-```{r}
 
-```
 
