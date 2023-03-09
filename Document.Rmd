@@ -645,3 +645,12 @@ plot(respca_municipi,choix="ind", cex=.1)
 ```{r}
 plot(respca_municipi,choix="var")
 ```
+```{r}
+Z <- predict(respca_municipi, newdata=d4)$coord[,1:2]
+colores <- c("red", "blue", "green")
+
+plot(Z, pch=".", col= colores, main="Municipis segons 3 clusters")
+```
+
+
+
