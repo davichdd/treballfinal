@@ -100,6 +100,9 @@ d1 <- data.frame(d$mun, d$v_blanc, d$v_nul, d$PSOE_p, d$PP_p, d$Cs_p, d$ERC_p, d
 
 d1 <- rename(d1, mun= d.mun, v_blanc= d.v_blanc, v_nul= d.v_nul, PSOE= d.PSOE_p, PP= d.PP_p, Cs= d.Cs_p, ERC= d.ERC_p, VOX= d.VOX_p, JUNTS= d.JUNTS_p, PNV= d.PNV_p, PODEMOS= d.PODEMOS_p, Bildu= d.Bildu_p, BNG= d.BNG_p, CUP= d.CUP_p, atur= d.t_atur, atur_m24= d.t_atur_m24, atur_25_44= d.t_atur_25_44, atur_M45= d.t_atur_M45, atur_h= d.t_atur_h, atur_d= d.t_atur_d, pob_t= d.pob_t, esp= d.esp, euro= d.euro, asia= d.asia, ame= d.ame, UE= d.UE, oce_apa= d.oce_apa, afr= d.afr,h= d.h, m= d.m, m19= d.m19,e20_29= d.e20_29, e30_39= d.e30_39, e40_49= d.e40_49, e50_59= d.e50_59, e60_69= d.e60_69,e70_79= d.e70_79, M80= d.M80)
 ```
+```{r}
+names(d1)
+```
 
 Renda
 
@@ -377,7 +380,7 @@ cor(d2$atur_M45,logit(d2$VOX), use = "pairwise.complete.obs")
 ```
 
 ```{r}
-d2 %>% ggplot(aes(x = atur_M45, y = logit(VOX)))+
+d2 %>% ggplot(aes(x = d2$atur_M45, y = logit(VOX)))+
   geom_point()
 ```
 
@@ -385,17 +388,66 @@ d2 %>% ggplot(aes(x = atur_M45, y = logit(VOX)))+
 
 ```{r}
 d2 %>%
-  mutate(logit_VOX = logit(VOX), m29 = m19 + e20_29) %>% 
-  select(m29, e30_39, e40_49, e50_59, e60_69, e70_79, M80, logit_VOX) %>% 
-  cor() 
+  mutate(logit_VOX = logit(VOX) 
+         ,m29 = m19 + e20_29) %>% 
+  select(m29, e30_39, e40_49, e50_59, e60_69, e70_79, M80, logit_VOX, VOX) %>% 
+  cor()
 ```
+```{r}
+ d2$logit_VOX <- logit(d2$VOX)
+d2$m29 <- d2$m19 + d2$e20_29
+```
+### 2.2.2.1 Vot a Vox i menors 29 anys 
+
+```{r}
+d2 %>% ggplot(aes(x = m29, y = VOX))+
+  geom_point()
+```
+### 2.2.2.2 Vot a Vox i edat 30 - 39 
+
+
+```{r}
+d2 %>% ggplot(aes(x = e30_39, y = VOX))+
+  geom_point()
+```
+### 2.2.2.3 Vot a Vox i edat 40 - 49 
+
+```{r}
+d2 %>% ggplot(aes(x = e40_49, y = VOX))+
+  geom_point()
+```
+### 2.2.2.4 Vot a Vox i edat 50 - 59 
+
+```{r}
+d2 %>% ggplot(aes(x = e50_59, y = logit_VOX))+
+  geom_point()
+```
+### 2.2.2.5 Vot a Vox i edat 60 - 69 
+
+```{r}
+d2 %>% ggplot(aes(x = e60_69, y = VOX))+
+  geom_point()
+```
+### 2.2.2.6 Vot a Vox i edat 70 - 79 
+
+```{r}
+d2 %>% ggplot(aes(x = e70_79, y = VOX))+
+  geom_point()
+```
+### 2.2.2.7 Vot a Vox i edat majors 80 
+
+```{r}
+d2 %>% ggplot(aes(x = M80, y = logit_VOX))+
+  geom_point()
+```
+
 
 ### 2.2.3. Vot a Vox i nacionalitat
 
 ```{r}
 d2 %>%
   mutate(logit_VOX = logit(VOX)) %>% 
-  select(esp, euro, asia, ame, UE, oce_apa, h, m, afr, logit_VOX) %>% 
+  select(esp, euro, asia, ame, UE, oce_apa, h, m, afr, logit_VOX, VOX) %>% 
   cor()
 ```
 
@@ -466,16 +518,52 @@ summary(model1)
 
 
 
+```{r}
+library(FactoMineR)
+library(factoextra)
+d3 <- d2 %>%
+  select(PSOE, VOX, PP, Cs, ERC, JUNTS, PNV, PODEMOS, Bildu, BNG, CUP) %>% 
+  scale()
+
+head(d3)
+```
 
 
+```{r}
+round(cov(d3),3)
+```
 
+```{r}
+pca_municipi <- princomp(d3)
 
+summary(pca_municipi)
+```
 
+```{r}
+attributes(pca_municipi)
+```
+```{r}
+Z <- pca_municipi$scores
 
+head(Z)
+```
+```{r}
+round(cov(Z),3)
+```
+```{r}
+plot(pca_municipi$scores[,1:2], pch =".", main ="Gràfic de municipis")
+```
+```{r}
+biplot(pca_municipi, cex=0.7, col=c("grey","red"))
+```
+```{r}
+respca_municipi <- PCA(d3, graph=FALSE)
+summary(respca_municipi)
+```
+```{r}
+plot(respca_municipi,choix="ind", cex=.1)
+```
 
-
-
-
-
-
-
+```{r}
+plot(respca_municipi,choix="var")
+```
