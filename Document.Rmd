@@ -18,6 +18,9 @@ library(foreign)
 library(knitr)
 library(dplyr)
 library(tidyverse)
+library(ggplot2)
+suppressPackageStartupMessages(library(cowplot))
+library(scales)
 ```
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -27,7 +30,12 @@ logit <- function(p,eps = 0.001){
   return(log(p/(1-p)))
 }
 ```
-
+###Funcions per anàlisi bivariat/propensions
+```{r}
+errStd_bin <- function(x) { sqrt(mean(x)*(1-mean(x)) / length(x))}
+minInt_bin <- function(x) { mean(x) - 1.96 *errStd_bin(x) }
+maxInt_bin <- function(x) { mean(x) + 1.96 *errStd_bin(x) }
+```
 # 1. Introducció
 
 Els discursos de la formació d'extrema dreta Vox se centren, en la lluita contra l'avortament, l'ecologisme, la immigració, els moviments feministes i els moviments LGTBIQ+. En el present treball veurem si hi ha una correlació entre els municipis amb una major taxa d'immigració o avortament, entre altres variables independents, i el vot a la formació de Santiago Abascal. És a dir, sense entrar en si suposen pors racionals o no, si hi ha una correlació en una major presència d'aquests fenòmens als quals Vox mostra un clar rebuig i una major suport en les localitats més afectades per aquests suposats problemes. 
@@ -387,6 +395,48 @@ cor(d2$atur_M45,logit(d2$VOX), use = "pairwise.complete.obs")
 d2 %>% ggplot(aes(x = d2$atur_M45, y = logit(VOX)))+
   geom_point()
 ```
+###Anàlisi bivariat atur
+
+```{r}
+ quantile(d2$atur, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(atur_t = cut(atur, c(-Inf, 0.005, 0.007, 0.009, 0.12, Inf )))
+
+d2 %>% count(atur_t)
+```
+```{r}
+PROPEN <- d2 %>% 
+  group_by(atur_t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN
+```
+```{r}
+p1 <- PROPEN %>% 
+  ggplot(aes(atur_t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p2 <- PROPEN %>% 
+  ggplot(aes(atur_t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança Indecisió")
+
+plot_grid(p1, p2, ncol=2)
+```
 
 ### 2.2.2. Vot a Vox i edat 
 
@@ -495,6 +545,50 @@ d2 %>% ggplot(aes(x = oce_apa, y = logit_VOX))+
 d2 %>% ggplot(aes(x = afr, y = logit_VOX))+
   geom_point()
 ```
+###Anàlisi bivariat Renta neta persona
+
+
+
+```{r}
+ quantile(d2$Renta_neta_persona, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(Renta_neta_persona_t = cut(Renta_neta_persona, c(-Inf, 9621, 10857.252, 11920.775, 13319.076, Inf )))
+
+d2 %>% count(Renta_neta_persona_t)
+```
+```{r}
+PROPEN2 <- d2 %>% 
+  group_by(Renta_neta_persona_t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN2
+```
+```{r}
+p3 <- PROPEN2 %>% 
+  ggplot(aes(Renta_neta_persona_t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p4 <- PROPEN2 %>% 
+  ggplot(aes(Renta_neta_persona_t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança Indecisió")
+
+plot_grid(p3, p4, ncol=2)
+```
 ### 2.2.4. Vot a Vox i renta neta per persona
 
 ```{r}
@@ -528,6 +622,49 @@ cor(log(d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 
 d2 %>% ggplot(aes(x = (Gini_medio), y = logit(VOX)))+
   geom_point()
+```
+###Anàlisi bivariat gini medio
+
+
+```{r}
+ quantile(d2$Gini_medio, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(Gini_medio_t = cut(Gini_medio, c(-Inf, 25.8, 27.4, 28.8, 30.7, Inf )))
+
+d2 %>% count(Gini_medio_t)
+```
+```{r}
+PROPEN3 <- d2 %>% 
+  group_by(Gini_medio_t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN3
+```
+```{r}
+p5 <- PROPEN3 %>% 
+  ggplot(aes(Gini_medio_t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p6 <- PROPEN3 %>% 
+  ggplot(aes(Gini_medio_t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança Indecisió")
+
+plot_grid(p5, p6, ncol=2)
 ```
 
 ### 2.2.6. Vot a Vox i tamany mig de la llar
@@ -655,6 +792,11 @@ colores <- c("red", "blue", "green")
 
 plot(Z, pch=".", col= colores, main="Municipis segons 3 clusters")
 ```
+
+
+
+
+
 
 
 
