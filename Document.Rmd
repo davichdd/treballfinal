@@ -354,6 +354,7 @@ cor(d2$atur, log(d2$VOX))
 d2 %>% ggplot(aes(x = (atur), y = log(VOX))) +
   geom_point() 
 ```
+### Propensió de l'atur
 ```{r}
  quantile(d2$atur, seq(0,1,0.2))
 ```
@@ -418,6 +419,7 @@ d2 <- d2 %>%
 
 d2 %>% count(atur_m24t)
 ```
+###Propensió atur dels menors de 24 anys
 ```{r}
 PROPEN4 <- d2 %>% 
   group_by(atur_m24t) %>% 
@@ -462,6 +464,7 @@ cor(d2$atur_25_44,logit(d2$VOX), use = "pairwise.complete.obs")
 d2 %>% ggplot(aes(x = atur_25_44, y = logit(VOX)))+
   geom_point()
 ```
+###Propensió atur de persones entre 25 y 44 anys
 ```{r}
  quantile(d2$atur_25_44, seq(0,1,0.2))
 ```
@@ -514,7 +517,7 @@ cor(d2$atur_M45,logit(d2$VOX), use = "pairwise.complete.obs")
 d2 %>% ggplot(aes(x = d2$atur_M45, y = logit(VOX)))+
   geom_point()
 ```
-
+###Propensió atur de majors de 45 anys
 ```{r}
  quantile(d2$atur_M45, seq(0,1,0.2))
 ```
@@ -661,7 +664,31 @@ d2 %>% ggplot(aes(x = oce_apa, y = logit_VOX))+
 d2 %>% ggplot(aes(x = afr, y = logit_VOX))+
   geom_point()
 ```
-###Anàlisi bivariat Renta neta persona
+
+### 2.2.4. Vot a Vox i renta neta per persona
+
+```{r}
+d3 <- d2 %>% filter(VOX > -2)
+```
+
+```{r}
+cor(d2$Renta_neta_persona,d2$VOX)
+cor(d2$Renta_neta_persona,logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
+  geom_point()
+```
+
+```{r}
+cor(d2$Renta_neta_persona,d2$VOX)
+cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
+
+d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
+  geom_point()
+```
+######Propensió gini medio Renta neta persona
 
 
 
@@ -705,29 +732,6 @@ p4 <- PROPEN2 %>%
 
 plot_grid(p3, p4, ncol=2)
 ```
-### 2.2.4. Vot a Vox i renta neta per persona
-
-```{r}
-d3 <- d2 %>% filter(VOX > -2)
-```
-
-```{r}
-cor(d2$Renta_neta_persona,d2$VOX)
-cor(d2$Renta_neta_persona,logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
-  geom_point()
-```
-
-```{r}
-cor(d2$Renta_neta_persona,d2$VOX)
-cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
-  geom_point()
-```
 
 ### 2.2.5. Vot a vox i índex de Gini 
 
@@ -739,7 +743,7 @@ cor(log(d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 d2 %>% ggplot(aes(x = (Gini_medio), y = logit(VOX)))+
   geom_point()
 ```
-###Anàlisi bivariat gini medio
+###Propensió gini medio
 
 
 ```{r}
