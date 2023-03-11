@@ -691,6 +691,13 @@ d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
 
 ##  2.3. Anàlisi multivariant
 
+
+Primer fem un model amb totes les variables, per veure quines són significatives i quines no. Utilitzarem només les generals.  
+```{r}
+model0 <- lm(logit(VOX) ~ atur + euro + asia + ame + oce_apa + afr + h + m + m19 + Renta_neta_persona + esp + pob_t + UE + e20_29 + e30_39 + e40_49 + e50_59 + e60_69 + e70_79 + M80 + Gini_medio + tam_hog_medio + por_hog_uni, data=d2)
+summary(model0)
+```
+
 ```{r}
 model1 <- lm(logit(VOX) ~ Renta_neta_persona, data=d2)
 summary(model1)
