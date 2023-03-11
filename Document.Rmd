@@ -1,9 +1,12 @@
 ---
 title: "L'àmbit municipal i el vot a Vox"
-subtitle: ""
 author: "Ruben Pueyo i David Donaire"
-date: "2023-03-08"
-output: html_document
+date: '2023-03-08'
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+subtitle: ''
 ---
 
 ```{r setup, include=FALSE}
@@ -39,15 +42,17 @@ Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades m
 #Ruben: "C:/Users/rpuey/Documents/datosfinal.txt"
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 data <- read.csv("/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt")
+```
+
+```{r eval=FALSE, include=FALSE}
 data <- datosfinal
 data <- rename(data, pob_t = totalpoblacion, mun = municipio)
 names(data)
 ```
 
-```{r}
-<<<<<<< HEAD
+```{r eval=FALSE, include=FALSE}
 data <- mutate(data, 
                esp = espaÃ.oles/pob_t,
                euro = europeossinespanyoles/pob_t, 
@@ -66,12 +71,11 @@ data <- mutate(data,
                e60_69 = edad60_69/pob_t, 
                e70_79 = edad70_79/pob_t,
                M80 = mayores80/pob_t)
-=======
+
 data <- mutate(data, esp = españoles/pob_t,euro = europeossinespanyoles/pob_t, asia = totalasia/pob_t, ame = americana/pob_t, UE = totalunioneuropea/pob_t, oce_apa = totaloceaniayapatridas/pob_t, afr = totalafrica/pob_t, h = totalhombres/pob_t, m = totalmujeres/pob_t, m19 = menores/pob_t,e20_29 = edad20_29/pob_t, e30_39 = edad30_39/pob_t, e40_49 = edad40_49/pob_t, e50_59 = edad50_59/pob_t,e60_69 = edad60_69/pob_t, e70_79 = edad70_79/pob_t,M80 = mayores80/pob_t)
->>>>>>> bb7e78b61ec133da6fb437f39d10a075e33fe0c3
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 padro <- readRDS(file = "data/SEPE/df_sepe_hist_m_padro.RDS")
 congres <- readRDS(file="data/electorals/d0911_esp_con_2019_mun.RData")
 congres <- aggregate(congres[,colnames(congres)[-c(1:5)]],list(id_mun = substr(congres$id_sscc, 1, 5)), sum, na.rm = TRUE)
