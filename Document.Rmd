@@ -21,6 +21,7 @@ library(tidyverse)
 library(ggplot2)
 suppressPackageStartupMessages(library(cowplot))
 library(scales)
+library(car)
 ```
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -51,7 +52,7 @@ Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades m
 ```
 
 ```{r eval=FALSE, include=FALSE}
-data <- read.csv("/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt")
+data <- read.csv("C:/Users/rpuey/Documents/datosfinal.txt")
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -80,7 +81,7 @@ data <- mutate(data,
                e70_79 = edad70_79/pob_t,
                M80 = mayores80/pob_t)
 
-data <- mutate(data, esp = españoles/pob_t,euro = europeossinespanyoles/pob_t, asia = totalasia/pob_t, ame = americana/pob_t, UE = totalunioneuropea/pob_t, oce_apa = totaloceaniayapatridas/pob_t, afr = totalafrica/pob_t, h = totalhombres/pob_t, m = totalmujeres/pob_t, m19 = menores/pob_t,e20_29 = edad20_29/pob_t, e30_39 = edad30_39/pob_t, e40_49 = edad40_49/pob_t, e50_59 = edad50_59/pob_t,e60_69 = edad60_69/pob_t, e70_79 = edad70_79/pob_t,M80 = mayores80/pob_t)
+data <- mutate(data, esp = espaÃ.oles/pob_t,euro = europeossinespanyoles/pob_t, asia = totalasia/pob_t, ame = americana/pob_t, UE = totalunioneuropea/pob_t, oce_apa = totaloceaniayapatridas/pob_t, afr = totalafrica/pob_t, h = totalhombres/pob_t, m = totalmujeres/pob_t, m19 = menores/pob_t,e20_29 = edad20_29/pob_t, e30_39 = edad30_39/pob_t, e40_49 = edad40_49/pob_t, e50_59 = edad50_59/pob_t,e60_69 = edad60_69/pob_t, e70_79 = edad70_79/pob_t,M80 = mayores80/pob_t)
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -391,7 +392,7 @@ p2 <- PROPEN %>%
   scale_y_continuous(labels = percent)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  labs(title="Intervals confiança Indecisió")
+  labs(title="Intervals confiança Atur")
 
 plot_grid(p1, p2, ncol=2)
 ```
@@ -447,7 +448,7 @@ p8 <- PROPEN4 %>%
   scale_y_continuous(labels = percent)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  labs(title="Intervals confiança Indecisió")
+  labs(title="Intervals confiança Atur menors 24 anys")
 
 plot_grid(p7, p8, ncol=2)
 ```
@@ -500,7 +501,7 @@ p10 <- PROPEN5 %>%
   scale_y_continuous(labels = percent)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  labs(title="Intervals confiança Indecisió")
+  labs(title="Intervals confiança persones en atur entre 25 i 44 anys")
 
 plot_grid(p9, p10, ncol=2)
 ```
@@ -553,7 +554,7 @@ p12 <- PROPEN6 %>%
   scale_y_continuous(labels = percent)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  labs(title="Intervals confiança Indecisió")
+  labs(title="Intervals confiança Majors 45 anys")
 
 plot_grid(p11, p12, ncol=2)
 ```
@@ -571,47 +572,366 @@ d2 %>%
 d2$m29 <- d2$m19 + d2$e20_29
 ```
 ### 2.2.2.1 Vot a Vox i menors 29 anys 
+```{r}
+cor(d2$m29,d2$VOX)
+cor(logit(d2$m29),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$m29,logit(d2$VOX), use = "pairwise.complete.obs")
+```
+
 
 ```{r}
 d2 %>% ggplot(aes(x = m29, y = VOX))+
   geom_point()
 ```
+### Propensión del vot a Vox i menors 29 anys 
+```{r}
+ quantile(d2$m29, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(m29t = cut(m29, c(-Inf, 0.14, 0.18, 0.22, 0.25, Inf )))
+
+d2 %>% count(m29t)
+```
+```{r}
+PROPEN9 <- d2 %>% 
+  group_by(m29t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN9
+```
+```{r}
+p14 <- PROPEN9 %>% 
+  ggplot(aes(m29t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p15 <- PROPEN9 %>% 
+  ggplot(aes(m29t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança menors 29 anys")
+
+plot_grid(p14, p15, ncol=2)
+```
+
 ### 2.2.2.2 Vot a Vox i edat 30 - 39 
+```{r}
+cor(d2$e30_39,d2$VOX)
+cor(logit(d2$e30_39),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$e30_39,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 
 
 ```{r}
 d2 %>% ggplot(aes(x = e30_39, y = VOX))+
   geom_point()
 ```
-### 2.2.2.3 Vot a Vox i edat 40 - 49 
-
+### Propensión del vot a Vox i edat 30 - 39 anys 
 ```{r}
-d2 %>% ggplot(aes(x = e40_49, y = VOX))+
+ quantile(d2$e30_39, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(e30_39t = cut(e30_39, c(-Inf, 0.09, 0.11, 0.12, 0.14, Inf )))
+
+d2 %>% count(e30_39t)
+```
+```{r}
+PROPEN10 <- d2 %>% 
+  group_by(e30_39t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN10
+```
+```{r}
+p16 <- PROPEN10 %>% 
+  ggplot(aes(e30_39t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p17 <- PROPEN10 %>% 
+  ggplot(aes(e30_39t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança edat 30 - 39")
+
+plot_grid(p16, p17, ncol=2)
+```
+### 2.2.2.3 Vot a Vox i edat 40 - 49 
+```{r}
+cor(d2$e40_49,d2$VOX)
+cor(logit(d2$e40_49),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$e40_49,logit(d2$VOX), use = "pairwise.complete.obs")
+```
+```{r}
+d2 %>% ggplot(aes(x = logit(d2$e40_49), y = logit(d2$VOX)))+
   geom_point()
 ```
-### 2.2.2.4 Vot a Vox i edat 50 - 59 
+### Propensión del vot a Vox i edat 40 - 49 anys 
+```{r}
+ quantile(d2$e40_49, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(e40_49t = cut(e40_49, c(-Inf, 0.12, 0.14, 0.16, 0.17, Inf )))
 
+d2 %>% count(e40_49t)
+```
+```{r}
+PROPEN11 <- d2 %>% 
+  group_by(e40_49t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN11
+```
+```{r}
+p18 <- PROPEN11 %>% 
+  ggplot(aes(e40_49t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p19 <- PROPEN11 %>% 
+  ggplot(aes(e40_49t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança edat 40 - 49")
+
+plot_grid(p18, p19, ncol=2)
+```
+### 2.2.2.4 Vot a Vox i edat 50 - 59 
+```{r}
+cor(d2$e50_59,d2$VOX)
+cor(logit(d2$e50_59),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$e50_59,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 ```{r}
 d2 %>% ggplot(aes(x = e50_59, y = logit_VOX))+
   geom_point()
 ```
-### 2.2.2.5 Vot a Vox i edat 60 - 69 
+### Propensión del vot a Vox i edat 50 - 59 anys 
+```{r}
+ quantile(d2$e50_59, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(e50_59t = cut(e50_59, c(-Inf, 0.14, 0.15, 0.16, 0.18, Inf )))
 
+d2 %>% count(e50_59t)
+```
+```{r}
+PROPEN12 <- d2 %>% 
+  group_by(e50_59t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN12
+```
+```{r}
+p20 <- PROPEN12 %>% 
+  ggplot(aes(e50_59t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p21 <- PROPEN12 %>% 
+  ggplot(aes(e50_59t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança edat 50 - 59")
+
+plot_grid(p20, p21, ncol=2)
+```
+### 2.2.2.5 Vot a Vox i edat 60 - 69 
+```{r}
+cor(d2$e60_69,d2$VOX)
+cor(logit(d2$e60_69),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$e60_69,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 ```{r}
 d2 %>% ggplot(aes(x = e60_69, y = VOX))+
   geom_point()
 ```
-### 2.2.2.6 Vot a Vox i edat 70 - 79 
+### Propensión del vot a Vox i edat 60 - 69 anys 
+```{r}
+ quantile(d2$e60_69, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(e60_69t = cut(e60_69, c(-Inf, 0.10, 0.12, 0.13, 0.15, Inf )))
 
+d2 %>% count(e60_69t)
+```
+```{r}
+PROPEN13 <- d2 %>% 
+  group_by(e60_69t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN13
+```
+```{r}
+p22 <- PROPEN13 %>% 
+  ggplot(aes(e60_69t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p23 <- PROPEN13 %>% 
+  ggplot(aes(e60_69t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança edat 60 - 69")
+
+plot_grid(p22, p23, ncol=2)
+```
+### 2.2.2.6 Vot a Vox i edat 70 - 79 
+```{r}
+cor(d2$e70_79,d2$VOX)
+cor(logit(d2$e70_79),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$e70_79,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 ```{r}
 d2 %>% ggplot(aes(x = e70_79, y = VOX))+
   geom_point()
 ```
-### 2.2.2.7 Vot a Vox i edat majors 80 
+### Propensión del vot a Vox i edat 70 - 79 anys 
+```{r}
+ quantile(d2$e70_79, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(e70_79t = cut(e70_79, c(-Inf, 0.07, 0.09, 0.11, 0.14, Inf )))
 
+d2 %>% count(e70_79t)
+```
+```{r}
+PROPEN14 <- d2 %>% 
+  group_by(e70_79t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN14
+```
+```{r}
+p24 <- PROPEN14 %>% 
+  ggplot(aes(e70_79t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p25 <- PROPEN14 %>% 
+  ggplot(aes(e70_79t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança edat 70 - 79")
+
+plot_grid(p24, p25, ncol=2)
+```
+### 2.2.2.7 Vot a Vox i edat majors 80 
+```{r}
+cor(d2$M80,d2$VOX)
+cor(logit(d2$M80),logit(d2$VOX), use = "pairwise.complete.obs")
+cor(d2$M80,logit(d2$VOX), use = "pairwise.complete.obs")
+```
 ```{r}
 d2 %>% ggplot(aes(x = M80, y = logit_VOX))+
   geom_point()
+```
+### Propensión del vot a Vox i majors 80 anys 
+```{r}
+ quantile(d2$M80, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(M80t = cut(M80, c(-Inf, 0.06, 0.08, 0.11, 0.16, Inf )))
+
+d2 %>% count(M80t)
+```
+```{r}
+PROPEN15 <- d2 %>% 
+  group_by(M80t) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN15
+```
+```{r}
+p26 <- PROPEN15 %>% 
+  ggplot(aes(M80t , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p27 <- PROPEN15 %>% 
+  ggplot(aes(M80t, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança majors 80")
+
+plot_grid(p26, p27, ncol=2)
 ```
 
 
@@ -624,6 +944,7 @@ d2 %>%
   cor()
 ```
 ### 2.2.3.1 Vot a Vox i espanyols
+
 ```{r}
 d2 %>% ggplot(aes(x = esp, y = VOX))+
   geom_point()
@@ -681,10 +1002,6 @@ d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
 ```
 
 ```{r}
-cor(d2$Renta_neta_persona,d2$VOX)
-cor((d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-
 d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
   geom_point()
 ```
@@ -728,7 +1045,7 @@ p4 <- PROPEN2 %>%
   scale_y_continuous(labels = percent)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  labs(title="Intervals confiança Indecisió")
+  labs(title="Intervals confiança Renta neta persona")
 
 plot_grid(p3, p4, ncol=2)
 ```
@@ -740,7 +1057,7 @@ cor(d2$Gini_medio,d2$VOX)
 cor((d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$Gini_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 
-d2 %>% ggplot(aes(x = (Gini_medio), y = logit(VOX)))+
+d2 %>% ggplot(aes(x = (Gini_medio), y = VOX))+
   geom_point()
 ```
 ###Propensió gini medio
@@ -782,7 +1099,7 @@ p6 <- PROPEN3 %>%
   scale_y_continuous(labels = percent)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  labs(title="Intervals confiança Indecisió")
+  labs(title="Intervals confiança Gini mitjà")
 
 plot_grid(p5, p6, ncol=2)
 ```
@@ -794,13 +1111,57 @@ cor(d2$tam_hog_medio,d2$VOX)
 cor((d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$tam_hog_medio),logit(d2$VOX), use = "pairwise.complete.obs")
 
-d2 %>% ggplot(aes(x = (tam_hog_medio), y = logit(VOX)))+
+d2 %>% ggplot(aes(x = log(tam_hog_medio), y = logit(VOX)))+
   geom_point()
+```
+###Propensió tamany mig de la llar
+
+
+```{r}
+ quantile(d2$tam_hog_medio, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(tam_hog_medio = cut(tam_hog_medio, c(-Inf, 2.08, 2.27, 2.43, 2.61, Inf )))
+
+d2 %>% count(tam_hog_medio)
+```
+```{r}
+PROPEN7 <- d2 %>% 
+  group_by(tam_hog_medio) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN7
+```
+```{r}
+p10 <- PROPEN7 %>% 
+  ggplot(aes(tam_hog_medio , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p11 <- PROPEN7 %>% 
+  ggplot(aes(tam_hog_medio, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança tamany hogar mitjà")
+
+plot_grid(p10, p11, ncol=2)
 ```
 
 ### 2.2.7. Vot a Vox i llars unipersonals
 
 ```{r}
+class((d2$por_hog_uni))
 cor(d2$por_hog_uni,d2$VOX)
 cor((d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
@@ -808,7 +1169,47 @@ cor(log(d2$por_hog_uni),logit(d2$VOX), use = "pairwise.complete.obs")
 d2 %>% ggplot(aes(x = (por_hog_uni), y = logit(VOX)))+
   geom_point()
 ```
+### 2.2.8. Propensió del vot a VOX i llars unipersonals
+```{r}
+ quantile(d2$por_hog_uni, seq(0,1,0.2))
+```
+```{r}
+d2 <- d2 %>% 
+  mutate(por_hog_unit = cut(por_hog_uni, c(-Inf, 26.09, 31.04, 36.38, 42.9, Inf )))
 
+d2 %>% count(por_hog_unit)
+```
+```{r}
+PROPEN8 <- d2 %>% 
+  group_by(por_hog_unit) %>% 
+  summarise(freq_absolutes = n()
+    ,I_minim = minInt_bin(VOX )
+         ,propensio = mean(VOX )
+         ,I_maxim = maxInt_bin(VOX ))%>% 
+  mutate(freq_relatives = freq_absolutes / sum(freq_absolutes))
+PROPEN8
+```
+```{r}
+p12 <- PROPEN8 %>% 
+  ggplot(aes(por_hog_unit , freq_relatives)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label = freq_absolutes), vjust=1.6, color="white")+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Freqüencies")
+
+p13 <- PROPEN8 %>% 
+  ggplot(aes(por_hog_unit, propensio)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin =I_minim, ymax = I_maxim, width = .2))+
+  scale_y_continuous(labels = percent)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Intervals confiança llars unipersonals")
+
+plot_grid(p12, p13, ncol=2)
+```
 ##  2.3. Anàlisi multivariant
 
 
@@ -835,9 +1236,118 @@ summary(model03)
 model04 <- lm(logit(VOX) ~ atur + atur_m24 + atur_h + atur_d + euro  + oce_apa + afr + h + Renta_neta_persona + UE + pob_t + e20_29 + e30_39 + e40_49 + e50_59 + M80 + Gini_medio, data=d2)
 summary(model04)
 ```
-###Tot sembla indicar que el millor model on totes les variables introduides són significatives i amb un adjust de 24'99% és el model 04
+###Tot sembla indicar que el millor model on totes les variables introduides són significatives i amb un adjust de 24'99% és el model 04. Les variables escollides són les que presentaven una major correlació amb la variable vot a VOX. 
+```{r}
+model05 <- lm(VOX ~ atur + atur_m24 + atur_h + atur_d + euro  + oce_apa + afr + h + Renta_neta_persona + UE + pob_t + e20_29 + e30_39 + e40_49 + e50_59 + M80 + Gini_medio, data=d2)
+summary(model05)
+```
+###El model 05 és el mateix, pero sense transformar la variable VOX a logit. Es pot apreciar que l'adjust cau força.
+###A continuació realitzem una revisió dels residus de la regressió:
+```{r}
+plot(model04,1)
+```
+```{r}
+plot(model04,2)
+```
+```{r}
+plot(density(residuals(model04)))
+```
+```{r}
+plot(model04,4)
+```
 
-##  2.4. Anàlisi de components principals
+```{r}
+plot(model04,5)
+```
+###Es pot observar una gran heterocedasticitat amb outliers que provoquen una cua important a l'esquerra. Per tant, intentarem fer el model més fiable traient aquests outliers. Abans utilitzarem el factor d'inflació de varianza per detectar colinealitats. 
+```{r}
+vif(model04)
+```
+###D'entrada, es pot observar que l'atur, atur d'homes, atur de dones i població europea junt amb UE presenten un registre molt elevat, i per tant, les traurem del model.
+
+```{r}
+model06 <- lm(logit(VOX) ~ atur_m24 + oce_apa + afr + h + Renta_neta_persona + pob_t + e20_29 + e30_39 + e40_49 + e50_59 + M80 + Gini_medio, data=d2)
+summary(model06)
+```
+###L'adjust ens baixa una mica, però totes les variables continuen sent significatives.
+```{r}
+vif(model06)
+```
+### En el model 06 no tenim problemes de multicolinealitat.
+```{r}
+plot(model06,1)
+```
+```{r}
+plot(model06,2)
+```
+```{r}
+plot(density(residuals(model06)))
+```
+```{r}
+plot(model06,4)
+```
+
+```{r}
+plot(model06,5)
+```
+###Per contra, els residus continuen tenint el mateix problema. Anem a modelar els diferents outliers.
+
+```{r}
+d4 <- d2
+d4=d4[-c(3524,720,5866),]
+```
+
+```{r}
+model07 <- lm(logit(VOX) ~ atur_m24 + oce_apa + afr + h + Renta_neta_persona + pob_t + e20_29 + e30_39 + e40_49 + e50_59 + M80 + Gini_medio, data=d4)
+summary(model07)
+```
+
+```{r}
+plot(model07,4)
+```
+
+```{r}
+plot(density(residuals(model07)))
+```
+
+###Traiem els nous outliers. Després mirarem què poden ser. 
+```{r}
+d4 <- d2
+d4=d4[-c(3524,720,5866,4023,4795,5625),]
+```
+```{r}
+model08 <- lm(logit(VOX) ~ atur_m24 + oce_apa + afr + h + Renta_neta_persona + pob_t + e20_29 + e30_39 + e40_49 + e50_59 + M80 + Gini_medio, data=d4)
+summary(model08)
+```
+```{r}
+plot(density(residuals(model08)))
+```
+```{r}
+plot(model08,4)
+```
+```{r}
+d4 <- d2
+d4=d4[-c(3524,720,5866,4023,4795,5625,3687,4348,5866),]
+```
+```{r}
+model09 <- lm(logit(VOX) ~ atur_m24 + oce_apa + afr + h + Renta_neta_persona + pob_t + e20_29 + e30_39 + e40_49 + e50_59 + M80 + Gini_medio, data=d4)
+summary(model09)
+```
+```{r}
+plot(density(residuals(model09)))
+```
+```{r}
+plot(model09,4)
+```
+```{r}
+plot(model09,1)
+```
+```{r}
+plot(model09,2)
+```
+###Encara tenim un seriós problema d'heterocedasticitat. 
+
+###2.4. Anàlisi de components principals
 
 ```{r}
 library(FactoMineR)
