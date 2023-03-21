@@ -688,7 +688,7 @@ cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
 d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
   geom_point()
 ```
-######Propensió gini medio Renta neta persona
+######Propensió Renta neta persona
 
 
 
