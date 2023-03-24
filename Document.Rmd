@@ -8,6 +8,9 @@ output:
   pdf_document: default
 subtitle: ''
 ---
+```{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -22,9 +25,10 @@ library(ggplot2)
 suppressPackageStartupMessages(library(cowplot))
 library(scales)
 library(car)
+library(readr)
 ```
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=FALSE}
 logit <- function(p,eps = 0.001){
   p[p==0] <- eps
   p[p==1] <- 1-eps
@@ -45,23 +49,22 @@ La metodologia utilitzada per a analitzar la nostra pregunta de recerca és comp
 
 Per poder realitzar el nostre estudi, s'ha realitzar una recopilació de dades mitjançant el padró municipal, la estadística municipal de l'atur de l'INE, un número d'indicadors econòmics del municipi i els resultats electorals municipals per al Congrés dels diputats. L'atur s'ha pres a data de novembre de 2019, donat que aquest any es van a dur a terme dues eleccions en pocs mesos, i la situació personal d'atur a aquelles dates podria haver afectat el vot. 
 
-```{r include=FALSE}
+```{r eval=FALSE, include=FALSE}
 #Per descargar-te les dades canvia el directori al teu Ruben!
 #David: "/Users/daviddonaire/Desktop/MEA/Treball final/Data/datosfinal.txt"
 #Ruben: "C:/Users/rpuey/Documents/datosfinal.txt"
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 data <- read.csv("C:/Users/rpuey/Documents/datosfinal.txt")
 ```
 
-```{r eval=FALSE, include=FALSE}
-data <- datosfinal
+```{r}
 data <- rename(data, pob_t = totalpoblacion, mun = municipio)
 names(data)
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 data <- mutate(data, 
                esp = espaÃ.oles/pob_t,
                euro = europeossinespanyoles/pob_t, 
@@ -84,13 +87,14 @@ data <- mutate(data,
 data <- mutate(data, esp = espaÃ.oles/pob_t,euro = europeossinespanyoles/pob_t, asia = totalasia/pob_t, ame = americana/pob_t, UE = totalunioneuropea/pob_t, oce_apa = totaloceaniayapatridas/pob_t, afr = totalafrica/pob_t, h = totalhombres/pob_t, m = totalmujeres/pob_t, m19 = menores/pob_t,e20_29 = edad20_29/pob_t, e30_39 = edad30_39/pob_t, e40_49 = edad40_49/pob_t, e50_59 = edad50_59/pob_t,e60_69 = edad60_69/pob_t, e70_79 = edad70_79/pob_t,M80 = mayores80/pob_t)
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 padro <- readRDS(file = "data/SEPE/df_sepe_hist_m_padro.RDS")
 congres <- readRDS(file="data/electorals/d0911_esp_con_2019_mun.RData")
 congres <- aggregate(congres[,colnames(congres)[-c(1:5)]],list(id_mun = substr(congres$id_sscc, 1, 5)), sum, na.rm = TRUE)
-suma <- merge(congres, padro)   
+suma <- merge(congres, padro)
 data1 <- suma[suma$ANY == 2019,]
 ```
+
 
 ```{r}
 data1 <- rename(data1, mun = id_mun)
@@ -152,6 +156,7 @@ dades_socio_mun <- dades_sscc %>%
 d1 <- merge(d1,dades_socio_mun,by.x="mun",by.y="id_mun")
 d1 <- na.omit(d1)
 ```
+
 
 ## 1.1. Rellevància i pertinència 
 
@@ -340,8 +345,8 @@ hist(d1$m)
 
 ### 2.2.1. Vot a Vox i atur
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
-d2 <- d1 %>% filter(VOX > 0, atur > 0)
+```{r}
+d2 <- d1 %>% filter(atur > 0, VOX > 0)
 ```
 
 ```{r}
@@ -986,19 +991,22 @@ d2 %>% ggplot(aes(x = afr, y = logit_VOX))+
   geom_point()
 ```
 
+
 ### 2.2.4. Vot a Vox i renta neta per persona
 
 ```{r}
 d3 <- d2 %>% filter(VOX > -2)
 ```
+```{r}
+names(d2)
+```
+
 
 ```{r}
+
 cor(d2$Renta_neta_persona,d2$VOX)
 cor(d2$Renta_neta_persona,logit(d2$VOX), use = "pairwise.complete.obs")
 cor(log(d2$Renta_neta_persona),logit(d2$VOX), use = "pairwise.complete.obs")
-
-d2 %>% ggplot(aes(x = (Renta_neta_persona), y = logit(VOX)))+
-  geom_point()
 ```
 
 ```{r}
