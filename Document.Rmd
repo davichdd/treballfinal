@@ -164,7 +164,7 @@ Particularment a nosaltres no ens interessa fer recerca sense un motiu o interè
 
 ## 1.2. Pregunta d’investigació i hipòtesis 
 
-Pregunta generals a Espanya?
+Pregunta d’investigació: hi ha una correlació entre variables independents i el vot a VOX en eleccions generals a Espanya? 
 
 Variable dependent: vot a VOX a les generals de 2019 
 
