@@ -164,9 +164,9 @@ Particularment a nosaltres no ens interessa fer recerca sense un motiu o interè
 
 ## 1.2. Pregunta d’investigació i hipòtesis 
 
-Pregunta d’investigació: hi ha una correlació entre variables independents i el vot a VOX en eleccions municipals a Espanya?
+Pregunta generals a Espanya?
 
-Variable dependent: vot a VOX en les municipals 
+Variable dependent: vot a VOX a les generals de 2019 
 
 5 variables independents claus: 
 1. Atur 
