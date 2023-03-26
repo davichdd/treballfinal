@@ -160,7 +160,7 @@ d1 <- na.omit(d1)
 
 ## 1.1. Rellevància i pertinència 
 
-Particularment a nosaltres no ens interessa fer recerca sense un motiu o interès més enllà de l'avanç de les ciències polítiques. Volem que el treball serveixi per a entendre millor per què la gent es decideix a votar per la formació d'extrema dreta a Espanya. També que aquest treball pugui ser utilitzat per alcaldies per a prevenir una expansió de l'extrema dreta a nivell local. Després dels resultats es podrà deduir si les pors als quals fa referència Vox són demandes insatisfetes pels governs locals a la població més afectada.
+Particularment a nosaltres no ens interessa fer recerca sense un motiu o interès més enllà de l'avanç de les ciències polítiques. Volem que el treball serveixi per a entendre millor per què la gent es decideix a votar per la formació d'extrema dreta a Espanya. 
 
 ## 1.2. Pregunta d’investigació i hipòtesis 
 
